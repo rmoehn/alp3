@@ -1,7 +1,7 @@
 package alp3.ueb;
 
 /**
- * A simple queue.   The underlying data structure is an array.
+ * A simple dynamic queue.   The underlying data structure is an array.
  * When it is full, all elements are copied into a larger array. So think
  * whether this approach suits you best.
  */
@@ -14,7 +14,7 @@ public class ArrayQueue<E> implements Queue<E> {
      * is inserted at the beginning of the array, if there are no elements
      * (wrap-around).
      */
-    private static final int INITIAL_SIZE = 20;
+    private static final int DEFAULT_INITIAL_CAPACITY = 20;
     private int queue_size = 0;
     private int head_ind = 0;
     private int tail_ind = 0;
@@ -23,12 +23,27 @@ public class ArrayQueue<E> implements Queue<E> {
     private E[] queue_array;
 
     /**
-     * Constructs a new empty <code>ArrayQueue</code>.
+     * Constructs a new empty {@code ArrayQueue} with the specified initial
+     * capacity.
+     *
+     * @param initialCapacity {@link capacity > 0}
+     * @throws IllegalArgumentException if the given capacity is less than 1
+     */
+    public ArrayQueue(int initialCapacity) {
+        if (initialCapacity < 1) {
+            throw new IllegalArgumentException(
+                "Initial capacity must be greater than 0.");
+        }
+
+        queue_array = (E[]) new Object[initialCapacity];
+    }
+
+    /**
+     * Constructs a new empty <code>ArrayQueue</code> with a default initial
+     * capacity.
      */
     public ArrayQueue() {
-        queue_array = (E[]) new Object[INITIAL_SIZE];
-            // Zu faul für weiteren Konstruktor mit wählbarer Größe.
-            // Aber wie macht man das richtig und sicher?
+        this(DEFAULT_INITIAL_CAPACITY);
     }
 
     /**
