@@ -1,7 +1,7 @@
 package alp3.ueb;
 
 /**
- * Implements a simple queue.   The underlying data structure is an array.
+ * A simple queue.   The underlying data structure is an array.
  * When it is full, all elements are copied into a larger array. So think
  * whether this approach suits you best.
  */
@@ -14,6 +14,8 @@ public class ArrayQueue<E> implements Queue<E> {
      * is inserted at the beginning of the array, if there are no elements
      * (wrap-around).
      */
+    private static final int INITIAL_SIZE = 20;
+    private int queue_size = 0;
     private int head_ind = 0;
     private int tail_ind = 0;
 
@@ -24,7 +26,7 @@ public class ArrayQueue<E> implements Queue<E> {
      * Constructs a new empty <code>ArrayQueue</code>.
      */
     public ArrayQueue() {
-        queue_array = (E[]) new Object[20];
+        queue_array = (E[]) new Object[INITIAL_SIZE];
             // Zu faul für weiteren Konstruktor mit wählbarer Größe.
             // Aber wie macht man das richtig und sicher?
     }
@@ -84,6 +86,9 @@ public class ArrayQueue<E> implements Queue<E> {
         else {
             tail_ind = 0;
         }
+
+        // Increment the size of the queue
+        ++queue_size;
     }
 
     /**
@@ -95,7 +100,7 @@ public class ArrayQueue<E> implements Queue<E> {
      * @throws EmptyQueueException if this ArrayQueue is empty
      */
     public E head() throws EmptyQueueException {
-        if (! this.empty()) {
+        if (! this.isEmpty()) {
             return queue_array[head_ind];
         }
         else {
@@ -126,6 +131,9 @@ public class ArrayQueue<E> implements Queue<E> {
             head_ind = 0;
         }
 
+        // Decrement the queue size
+        --queue_size;
+
         return head_elem;
     }
 
@@ -138,7 +146,7 @@ public class ArrayQueue<E> implements Queue<E> {
         int i = head_ind;
         String outstring = "(";
 
-        if (! this.empty()) {
+        if (! this.isEmpty()) {
             // If queue is not wrapped around inside the array
             if (head_ind < tail_ind) {
                 // Write elements into string, one after another
@@ -210,5 +218,9 @@ public class ArrayQueue<E> implements Queue<E> {
 
         // Replace the old array
         queue_array = new_array;
+    }
+
+    public int size() {
+        return queue_size;
     }
 }
