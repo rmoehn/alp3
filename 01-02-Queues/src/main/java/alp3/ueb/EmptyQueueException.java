@@ -1,9 +1,11 @@
 package alp3.ueb;
 
+import java.util.NoSuchElementException;
+
 /**
  * Provides an <code>EmptyQueueException</code> object.
  */
-public class EmptyQueueException extends IllegalStateException {
+public class EmptyQueueException extends NoSuchElementException {
     /**
      * Message explaining details of the Exception.
      */
