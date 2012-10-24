@@ -1,5 +1,7 @@
 package alp3.ueb;
 
+import java.lang.Math;
+
 /**
  * A simple dynamic queue.   The underlying data structure is an array.
  * When it is full, all elements are copied into a larger array. So think
@@ -15,7 +17,6 @@ public class ArrayQueue<E> implements Queue<E> {
      * (wrap-around).
      */
     private static final int DEFAULT_INITIAL_CAPACITY = 20;
-    private int queue_size = 0;
     private int head_ind = 0;
     private int tail_ind = 0;
 
@@ -101,9 +102,6 @@ public class ArrayQueue<E> implements Queue<E> {
         else {
             tail_ind = 0;
         }
-
-        // Increment the size of the queue
-        ++queue_size;
     }
 
     /**
@@ -145,9 +143,6 @@ public class ArrayQueue<E> implements Queue<E> {
         else {
             head_ind = 0;
         }
-
-        // Decrement the queue size
-        --queue_size;
 
         return head_elem;
     }
@@ -235,7 +230,13 @@ public class ArrayQueue<E> implements Queue<E> {
         queue_array = new_array;
     }
 
+    /**
+     * Returns the number of elements in the queue.
+     */
     public int size() {
-        return queue_size;
+        return tail_ind > head_ind ? tail_ind - head_ind
+             :                       queue_array.length - head_ind + tail_ind
+             ;
+            // Math.abs(tail_ind - head_ind) alone is rubbish.
     }
 }
