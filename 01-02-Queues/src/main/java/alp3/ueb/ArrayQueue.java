@@ -105,24 +105,6 @@ public class ArrayQueue<E> implements Queue<E> {
     }
 
     /**
-     * Returns the element at the head of this <code>ArrayQueue</code>.
-     * This does not remove it, though.
-     *
-     * @return element at the head of this ArrayQueue
-     *
-     * @throws EmptyQueueException if this ArrayQueue is empty
-     */
-    public E head() throws EmptyQueueException {
-        if (! this.isEmpty()) {
-            return queue_array[head_ind];
-        }
-        else {
-            throw new EmptyQueueException(
-                          "Can't return the head of an empty queue.");
-        }
-    }
-
-    /**
      * Removes the element at the head of this <code>ArrayQueue</code> and
      * returns it.
      *
