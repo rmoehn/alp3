@@ -105,6 +105,24 @@ public class ArrayQueue<E> implements Queue<E> {
     }
 
     /**
+     * Returns the element at the head of this <code>ArrayQueue</code>.
+     * This does not remove it, though.
+     *
+     * @return element at the head of this ArrayQueue
+     *
+     * @throws EmptyQueueException if this ArrayQueue is empty
+     */
+    public E head() throws EmptyQueueException {
+        if (! this.isEmpty()) {
+            return queue_array[head_ind];
+        }
+        else {
+            throw new EmptyQueueException(
+                          "Can't return the head of an empty queue.");
+        }
+    }
+
+    /**
      * Removes the element at the head of this <code>ArrayQueue</code> and
      * returns it.
      *
@@ -113,12 +131,17 @@ public class ArrayQueue<E> implements Queue<E> {
      * @throws EmptyQueueException if this ArrayQueue is empty
      */
     public E dequeue() throws EmptyQueueException {
-        E head_elem;
+        // Check this queue for emptiness
+        if (this.isEmpty()) {
+            throw new EmptyQueueException(
+                          "Can't return the elements from an empty queue.");
+        }
 
-        // Retrieve element from the head of this ArrayQueue
-        head_elem = this.head();
+        // Obtain the wanted element from the array and delete it there
+        E head_elem = queue_array[head_ind];
+        queue_array[head_ind] = null;
 
-        // Move along the head index, thus deleting the element at the head
+        // Move along the head index
         if (head_ind < queue_array.length - 1) {
             ++head_ind;
         }
