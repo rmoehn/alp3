@@ -5,48 +5,87 @@ import java.lang.Math;
 /**
  * A convex quadrilateral.
  */
-public class Viereck implements Form {
-    protected final Point2D a;
-    protected final Point2D b;
-    protected final Point2D c;
-    protected final Point2D d;
+public class Viereck implements Figur {
+    protected final double a;
+    protected final double b;
+    protected final double c;
+    protected final double d;
+    protected final double alpha;
+
+    // Set an angle resolution of 0.001°
+    private final static double ANGLE_TOLERANCE = Math.PI / 18000;
 
     /**
      * See {@link newFourPointsInstance}.
      */
-    private Viereck(Point2D a, Point2D b, Point2D c, Point2D e) {
+    private Viereck(double a, double b, double c, double d, double alpha) {
+
+        if (Math.PI - alpha < ANGLE_TOLERANCE) {
+            throw new IllegalArgumentException("Angle too large.");
+        }
+
         this.a = a;
         this.b = b;
         this.c = c;
         this.d = d;
+        this.alpha = alpha;
     }
 
     /**
-     * Creates a new quadrilateral specified by its cornerpoints. It is
-     * assumed that the cornerpoints indeed specify a convex quadrilateral.
-     * Wrong calculations will result from wrong inputs.
+     * Creates a new convex quadrilateral specified by its four sides and one
+     * angle. The angle must be the one between the sides given first and the
+     * side given last.
+     *
+     *             c
+     *       +-----------+
+     *       |           |
+     *     d |           | b
+     *       |alpha      |
+     *       +-----------+
+     *             a
+     *
+     * (Contort the figure to your needs.)
+     *
+     * @throws IllegalArgumentException if the angle is {@literal >=} PI
      */
-    public Viereck newFourPointsInstance(Point2D a, Point2D b, Point2D c,
-                                         Point2D d) {
-        return new Viereck(a, b, c, d);
+    public static Viereck newSidesAngleInstance(double a, double b, double c,
+                                          double d, double alpha) {
+        return new Viereck(a, b, c, d, alpha);
     }
 
     /**
      * Returns the perimeter of this quadrilateral.
      */
     public double umfang() {
-        return a.distance(b) + b.distance(c) + c.distance(d) + d.distance(a);
+        return a + b + c + d; // Yeah!
     }
 
     /**
      * Returns the area of this quadrilateral.
      */
     public double flaeche() {
-        // Using a formula by old Gauss, see
-        // http://de.wikipedia.org/wiki/Viereck (2012-10-25).
-        return 0.5 * Math.abs(
-                         (a.getY() - c.getY()) * (d.getX() - b.getX())
-                       + (b.getY() - d.getY()) * (a.getX() - c.getX())
-                     );
+        // Calculate the square of the diagonal opposite the given angle
+        double fsquare = a*a + d*d - 2*a*d*Math.cos(alpha);
+
+        // Calculate the angle opposite the given angle
+        double gamma = Math.acos( (fsquare - c*c - b*b) / (-2*c*b) );
+
+        return 0.5 * (a*d*Math.sin(alpha) + b*c*Math.sin(gamma));
+    }
+
+    /**
+     * Compares two {@code Figur}s by their areas.
+     */
+    public int compareTo(Figur that) {
+        double thatArea = that.flaeche();
+        double thisArea = this.flaeche();
+
+        if (thisArea > thatArea) {
+            return 1;
+        }
+        if (thisArea < thatArea) {
+            return -1;
+        }
+        return 0;
     }
 }
