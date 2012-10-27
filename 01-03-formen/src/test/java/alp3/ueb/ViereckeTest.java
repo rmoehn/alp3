@@ -96,4 +96,32 @@ public class ViereckeTest {
             );
         }
     }
+
+    @Test(expected=IllegalArgumentException.class) public void excTest1() {
+        Viereck.newSidesAngleInstance(3.0, 0.4, 6.4, 5.5, 0.0);
+    }
+
+    @Test(expected=IllegalArgumentException.class) public void excTest2() {
+        Trapez.newSidesAngleInstance(3.0, 0.4, 6.4, -0.5 * Math.PI);
+    }
+
+    @Test(expected=IllegalArgumentException.class) public void excTest3() {
+        Parallelogramm.newSidesAngleInstance(3.0, 5.5, Math.PI);
+    }
+
+    @Test(expected=IllegalArgumentException.class) public void excTest4() {
+        Drachenviereck.newSidesAngleInstance(3.0, 5.5, 0.4 * Math.PI);
+    }
+
+    @Test(expected=IllegalArgumentException.class) public void excTest5() {
+        Raute.newSideAngleInstance(3.0, 2 * Math.PI);
+    }
+
+    @Test(expected=IllegalArgumentException.class) public void excTest6() {
+        Rechteck.newSidesInstance(3.0, 0.0);
+    }
+
+    @Test(expected=IllegalArgumentException.class) public void excTest7() {
+        Quadrat.newSideInstance(-1.5);
+    }
 }

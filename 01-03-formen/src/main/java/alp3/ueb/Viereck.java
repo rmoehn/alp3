@@ -19,11 +19,16 @@ public class Viereck implements Figur {
      * See {@link newSidesAngleInstance}.
      *
      * @throws IllegalArgumentException if the angle is {@literal >=} PI
+     * @throws IllegalArgumentException if the angle is {@literal <=} 0
+     * @throws IllegalArgumentException if a side is {@literal <=} 0
      */
     protected Viereck(double a, double b, double c, double d, double alpha) {
         // Check for bad input
         if (Math.PI - alpha < ANGLE_TOLERANCE) {
             throw new IllegalArgumentException("Angle too large.");
+        }
+        if (alpha <= 0) {
+            throw new IllegalArgumentException("Angle too small.");
         }
         if (a <= 0 | b <= 0 | c <= 0 | d <= 0) {
             throw new IllegalArgumentException(
