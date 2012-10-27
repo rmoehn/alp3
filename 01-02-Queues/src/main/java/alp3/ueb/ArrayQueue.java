@@ -242,6 +242,6 @@ public class ArrayQueue<E> implements Queue<E> {
         return tail_ind > head_ind ? tail_ind - head_ind
              :                       queue_array.length - head_ind + tail_ind
              ;
-            // Math.abs(tail_ind - head_ind) alone is rubbish.
+            // Math.abs(tail_ind - head_ind) alone is not sufficient.
     }
 }
