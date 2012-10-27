@@ -25,9 +25,18 @@ public class Drachenviereck extends Viereck {
      *          \   /
      *           \ /
      *            +
+     *
+     * @throws IllegalArgumentException if the given angle is
+     * {@literal <= 0.5 * PI}
      */
     public static Drachenviereck newSidesAngleInstance(double a, double d,
                                                        double alpha) {
+        // Make sure that the is not too small
+        if (alpha - 0.5 * Math.PI < ANGLE_TOLERANCE) {
+            throw new IllegalArgumentException(
+                "Angle must be larger than 0.5 * PI.");
+        }
+
         return new Drachenviereck(a, d, alpha);
     }
 

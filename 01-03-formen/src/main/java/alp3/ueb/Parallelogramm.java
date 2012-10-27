@@ -1,6 +1,5 @@
 package alp3.ueb;
 
-import java.awt.geom.Point2D;
 import java.lang.Math;
 
 /**
@@ -8,7 +7,7 @@ import java.lang.Math;
  */
 public class Parallelogramm extends Trapez {
     /**
-     * See {@link newFourPointsInstance}.
+     * See {@link newSidesAngleInstance}.
      */
     protected Parallelogramm(double a, double d, double alpha) {
         super(a, a, d, alpha);

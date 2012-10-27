@@ -1,7 +1,7 @@
 package alp3.ueb;
 
-import java.awt.geom.Point2D;
 import java.lang.Math;
+
 /**
  * A convex quadrilateral.
  */
@@ -13,12 +13,23 @@ public class Viereck implements Figur {
     protected final double alpha;
 
     // Set an angle resolution of 0.001°
-    private final static double ANGLE_TOLERANCE = Math.PI / 18000;
+    protected final static double ANGLE_TOLERANCE = Math.PI / 18000;
 
     /**
-     * See {@link newFourPointsInstance}.
+     * See {@link newSidesAngleInstance}.
+     *
+     * @throws IllegalArgumentException if the angle is {@literal >=} PI
      */
     protected Viereck(double a, double b, double c, double d, double alpha) {
+        // Check for bad input
+        if (Math.PI - alpha < ANGLE_TOLERANCE) {
+            throw new IllegalArgumentException("Angle too large.");
+        }
+        if (a <= 0 | b <= 0 | c <= 0 | d <= 0) {
+            throw new IllegalArgumentException(
+                "Lengths of sides must be > 0.");
+        }
+
         this.a = a;
         this.b = b;
         this.c = c;
@@ -28,7 +39,7 @@ public class Viereck implements Figur {
 
     /**
      * Creates a new convex quadrilateral specified by its four sides and one
-     * angle. The angle must be the one between the sides given first and the
+     * angle. The angle must be the one between the side given first and the
      * side given last.
      *
      *             c
@@ -40,20 +51,9 @@ public class Viereck implements Figur {
      *             a
      *
      * (Contort the figure to your needs.)
-     *
-     * @throws IllegalArgumentException if the angle is {@literal >=} PI
      */
     public static Viereck newSidesAngleInstance(double a, double b, double c,
                                           double d, double alpha) {
-        // Check for bad input
-        if (Math.PI - alpha < ANGLE_TOLERANCE) {
-            throw new IllegalArgumentException("Angle too large.");
-        }
-        if (a * b * c * d == 0) {
-            throw new IllegalArgumentException(
-                "Lengths of sides must be > 0.");
-        }
-
         return new Viereck(a, b, c, d, alpha);
     }
 

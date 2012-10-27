@@ -6,9 +6,8 @@ import java.lang.Math;
  * A convex trapezium.
  */
 public class Trapez extends Viereck {
-
     /**
-     * See {@link newFourPointsInstance}.
+     * See {@link newSidesAngleInstance}.
      */
     protected Trapez(double a, double c, double d, double alpha) {
         super(a, Math.sqrt(a*a + c*c + d*d + 2*d*Math.cos(alpha) * (c - a)
