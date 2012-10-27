@@ -13,6 +13,9 @@ public class ViereckeTest {
     /*
      * What follows is a horrible abuse of JUnit.
      */
+    /*
+     * And also a lot of duplication.
+     */
 
     private static final double DELTA = 0.1;
     private List<Figur> allQuadlats = new ArrayList<Figur>();
@@ -68,6 +71,21 @@ public class ViereckeTest {
         assertEquals(148.0, test.umfang(), DELTA);
 
         allQuadlats.add(test);
+
+        // Test Drachenviereck
+        test = Drachenviereck.newSidesAngleInstance(3.5, 2.0, 0.6 * Math.PI);
+        assertEquals(6.66, test.flaeche(), DELTA);
+        assertEquals(11.0, test.umfang(), DELTA);
+
+        allQuadlats.add(test);
+
+        // Test Raute
+        test = Raute.newSideAngleInstance(21.0, 0.27 * Math.PI);
+        assertEquals(330.80, test.flaeche(), DELTA);
+        assertEquals(84.0, test.umfang(), DELTA);
+
+        allQuadlats.add(test);
+
 
         // Test comparability
         Collections.sort(allQuadlats);
