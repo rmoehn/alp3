@@ -1,43 +1,44 @@
 package alp3.ueb;
 
-import java.awt.geom.Point2D;
 import java.lang.Math;
 
 /**
- * A convex trapezoid.
+ * A convex trapezium.
  */
 public class Trapez extends Viereck {
 
     /**
      * See {@link newFourPointsInstance}.
      */
-    private Trapez(Point2D a, Point2D b, Point2D c, Point2D e) {
-        super(a, b, c, d);
+    protected Trapez(double a, double c, double d, double alpha) {
+        super(a, Math.sqrt(a*a + c*c + d*d + 2*d*Math.cos(alpha) * (c - a)
+                           - 2*a*c), c, d, alpha);
     }
 
     /**
-     * Creates a new trapezoid specified by its cornerpoints. Cornerpoints
-     * must be given in counter-clockwise order, a and b specifying the
-     * first parallel and c and d the second. Inputs not compliant with this
-     * may result in wrong outputs.
+     * Creates a new trapezium specified by three of its sides and one angle.
      *
-     *     d       c
+     *         c
      *      +-----+
-     *     /        \
-     *    /           \
+     *   d /        \  b
+     *    /alpha      \
      *   +--------------+
-     *  a                b
+     *         a
      */
-    public Trapez newFourPointsInstance(Point2D a, Point2D b, Point2D c,
-                                         Point2D d) {
-        return new Trapez(a, b, c, d);
+    public static Trapez newSidesAngleInstance(double a, double c, double d,
+                                         double alpha) {
+        return new Trapez(a, c, d, alpha);
     }
-
 
     /*
      * Calculating the perimeter stays the same as for an ordinary
-     * quadrilateral. Calculating the area could be different, but not
-     * simpler, as we would have to calculate the height first. Thus we
-     * inherit both methods.
+     * quadrilateral.
      */
+
+    /**
+     * Calculate the area of this trapezium.
+     */
+    @Override public double flaeche() {
+        return 0.5 * (a + c) * d*Math.sin(alpha);
+    }
 }

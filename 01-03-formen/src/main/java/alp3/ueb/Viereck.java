@@ -18,12 +18,7 @@ public class Viereck implements Figur {
     /**
      * See {@link newFourPointsInstance}.
      */
-    private Viereck(double a, double b, double c, double d, double alpha) {
-
-        if (Math.PI - alpha < ANGLE_TOLERANCE) {
-            throw new IllegalArgumentException("Angle too large.");
-        }
-
+    protected Viereck(double a, double b, double c, double d, double alpha) {
         this.a = a;
         this.b = b;
         this.c = c;
@@ -50,6 +45,15 @@ public class Viereck implements Figur {
      */
     public static Viereck newSidesAngleInstance(double a, double b, double c,
                                           double d, double alpha) {
+        // Check for bad input
+        if (Math.PI - alpha < ANGLE_TOLERANCE) {
+            throw new IllegalArgumentException("Angle too large.");
+        }
+        if (a * b * c * d == 0) {
+            throw new IllegalArgumentException(
+                "Lengths of sides must be > 0.");
+        }
+
         return new Viereck(a, b, c, d, alpha);
     }
 

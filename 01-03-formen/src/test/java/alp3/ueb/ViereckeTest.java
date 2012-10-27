@@ -10,19 +10,23 @@ import java.util.Collections;
  * Class for testing the class {@link Viereck} and its subclasses.
  */
 public class ViereckeTest {
+    /*
+     * What follows is a horrible abuse of JUnit.
+     */
+
     private static final double DELTA = 0.1;
     private List<Figur> allQuadlats = new ArrayList<Figur>();
 
-    @Test public void testViereck() {
+    @Test public void testAll() {
+        // Test Viereck
         Figur test
             = Viereck.newSidesAngleInstance(3.00, 7.28, 7.21, 3.16, 1.8925);
         assertEquals(21.50, test.flaeche(), DELTA);
         assertEquals(20.65, test.umfang(), DELTA);
 
         allQuadlats.add(test);
-    }
 
-    @Test public void testTrapez() {
+        // Test Trapez
         double[][] values = {
             {  35.0 ,  25.0,  17.0 , 0.3  * Math.PI, 412.60  ,   90.75},
             {   3.8 ,   5.2,   0.8 , 0.1  * Math.PI, 1.11    ,   11.97},
@@ -31,7 +35,7 @@ public class ViereckeTest {
         };
 
         for (double[] trapez : values) {
-            Figur test = Trapez.newSidesAngleInstance(
+            test = Trapez.newSidesAngleInstance(
                                trapez[0],
                                trapez[1],
                                trapez[2],
@@ -42,34 +46,30 @@ public class ViereckeTest {
 
             allQuadlats.add(test);
         }
-    }
 
-    @Test public void testParallelogramm() {
-        Figur test
+        // Test Parallelogramm
+        test
             = Parallelogramm.newSidesAngleInstance(12.4, 1.1, 0.05 * Math.PI);
         assertEquals(2.13, test.flaeche(), DELTA);
         assertEquals(27.0, test.umfang(), DELTA);
 
         allQuadlats.add(test);
-    }
 
-    @Test public void testRechteck() {
-        Figur test = Rechteck.newSidesInstance(1.1, 0.5);
+        // Test Rechteck
+        test = Rechteck.newSidesInstance(1.1, 0.5);
         assertEquals(0.55, test.flaeche(), DELTA);
         assertEquals(3.2, test.umfang(), DELTA);
 
         allQuadlats.add(test);
-    }
 
-    @Test public void testQuadrat() {
-        Figur test = Quadrat.newSideInstance(37.0);
+        // Test Quadrat
+        test = Quadrat.newSideInstance(37.0);
         assertEquals(1369.0, test.flaeche(), DELTA);
         assertEquals(148.0, test.umfang(), DELTA);
 
         allQuadlats.add(test);
-    }
 
-    @AfterClass @Test public void testSorting() {
+        // Test comparability
         Collections.sort(allQuadlats);
 
         for (int i = 0; i < allQuadlats.size() - 1; ++i) {
