@@ -29,4 +29,9 @@ public interface Account {
      * Returns this account's balance.
      */
     public Quantity balance();
+
+    /**
+     * Returns this account's account number.
+     */
+    public int accountNumber();
 }
