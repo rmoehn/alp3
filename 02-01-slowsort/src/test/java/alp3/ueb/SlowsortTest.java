@@ -1,17 +1,19 @@
 package alp3.ueb;
 
-import junit.framework.*;
-import static junit.framework.Assert.*;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static alp3.ueb.Slowsort.*;
 
 public class SlowsortTest {
     private List<Integer> sortedList0;
     private List<Integer> unsortedList0;
 
     @Before public void setUp() {
-        sortedList0 =   Arrays.asList(-13, -4, 3, 3, 800, 1344, 6_000_000);
+        sortedList0 =   Arrays.asList(-13, -4, 3, 3, 800, 1344, 6000000);
         unsortedList0 = Arrays.asList(50, 100, 300, 33, 50);
     }
 
@@ -20,12 +22,12 @@ public class SlowsortTest {
     }
 
     @Test public void testIsSorted1() {
-        assertTrue( !isSorted(sortedList1) );
+        assertTrue( !isSorted(unsortedList0) );
     }
 
     @Test public void testPermutations() {
         List<List<Integer>> perms = permutations(unsortedList0);
-        assertEquals( perms.size() );
+        assertEquals( factorial(unsortedList0.size()), perms.size() );
     }
 
     @Test public void testFactorial0() {
