@@ -19,7 +19,7 @@ class Permutations<E> implements Enumeration {
 
     private int curPermNr = 0;
     private ArrayList<E> items;
-    private int itemsCnt;
+    protected int itemsCnt;
 
     /**
      * Creates a new instance of this class.
