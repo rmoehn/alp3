@@ -5,8 +5,10 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
-import static alp3.ueb.Slowsort.*;
+import alp3.ueb.Slowsort;
 
 public class SlowsortTest {
     private List<Integer> sortedList0;
@@ -18,26 +20,17 @@ public class SlowsortTest {
     }
 
     @Test public void testIsSorted0() {
-        assertTrue( isSorted(sortedList0) );
+        assertTrue( Slowsort.isSorted(sortedList0) );
     }
 
     @Test public void testIsSorted1() {
-        assertTrue( !isSorted(unsortedList0) );
+        assertTrue( !Slowsort.isSorted(unsortedList0) );
     }
 
-    @Test public void testPermutations() {
-        List<List<Integer>> perms = permutations(unsortedList0);
-        assertEquals( factorial(unsortedList0.size()), perms.size() );
-    }
+    @Test public void testSort0() {
+        List<Integer> tempList0 = new ArrayList(unsortedList0);
+        Collections.sort( tempList0     );
 
-    @Test public void testFactorial0() {
-        assertEquals(1, factorial(0));
-        assertEquals(1, factorial(1));
-        assertEquals(120, factorial(5));
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void testFactorial1() {
-        factorial(-1);
+        assertEquals(tempList0, Slowsort.sort(unsortedList0));
     }
 }

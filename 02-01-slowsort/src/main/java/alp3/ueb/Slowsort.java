@@ -5,8 +5,20 @@ import java.util.ArrayList;
 import java.lang.Comparable;
 
 public class Slowsort {
+    /**
+     * Sorts a list of comparable objects and returns the sorted list.
+     */
+    static <E extends Comparable<E>> List<E> sort(List<E> list) {
+        for (Permutations perms = new Permutations(list);
+                perms.hasMoreElements(); ) {
+            List<E> perm = perms.nextElement();
 
-    static <E extends Comparable<E>> void sort(List<E> list) {
+            if (isSorted(perm)) {
+                return perm;
+            }
+        }
+
+        throw new AssertionError("Should never be reached.");
     }
 
     /**
@@ -50,24 +62,5 @@ public class Slowsort {
         }
 
         return perms;
-    }
-
-    /**
-     * Returns the factorial of the given number {@code >= 0}.
-     */
-    static int factorial(int n) {
-        // Prevent bad results
-        if (n < 0) {
-            throw new
-                IllegalArgumentException("Number must not be less than 0.");
-        }
-
-        // Calculate the product
-        int result = 1;
-        for (int i = 2; i <= n; ++i) {
-            result *= i;
-        }
-
-        return result;
     }
 }
