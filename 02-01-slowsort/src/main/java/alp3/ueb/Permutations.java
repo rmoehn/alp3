@@ -65,7 +65,7 @@ class Permutations<E> implements Enumeration {
      * Computes a permutation of this iterator's elements from a given
      * pattern.
      */
-    private List<E> patternToPermutation(int[] pattern) {
+    List<E> patternToPermutation(int[] pattern) {
         List<E> perm           = new ArrayList<E>(itemsCnt);
         ArrayList<E> tempItems = new ArrayList<E>(items);
 
@@ -81,7 +81,7 @@ class Permutations<E> implements Enumeration {
      * Generates a pattern from which the n-th permutation of the items is
      * computed.
      */
-    private int[] numberToPattern(int n) {
+    int[] numberToPattern(int n) {
         /*
          * The idea behind this is an odometer with wheels of different sizes.
          * The first wheel has size itemsCnt, the second itemsCnt-1 and so on.
@@ -99,7 +99,8 @@ class Permutations<E> implements Enumeration {
             n /= i;
         }
 
-        return n == 0 ? new int[0] : pattern;
+        return n != 0 ? new int[0] : pattern;
+            // n > 0 means overflow means permutations exhausted
     }
 
     /**

@@ -2,6 +2,7 @@ package alp3.ueb;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+import java.util.Arrays;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,21 +13,45 @@ import static alp3.ueb.Slowsort.*;
 import static alp3.ueb.Permutations.*;
 
 public class PermutationsTest {
+    List<Integer> testlist;
+    int testlistSize;
+    Permutations testperms;
+
+
     public PermutationsTest() {
         super();
     }
 
-    @Test public void testPermutations0() {
-        List<Integer> testlist = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
-        int testlistSize       = testlist.size();
+    @Before public void setUp() {
+        testlist     = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
+        testlistSize = testlist.size();
+        testperms    = new Permutations(testlist);
+    }
 
+    @Test public void testNumberToPattern() {
+        // The first few patterns
+        int[][] testpatterns = {
+            { 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 1, 0 },
+            { 0, 0, 0, 0, 1, 0, 0 },
+            { 0, 0, 0, 0, 1, 1, 0 },
+            { 0, 0, 0, 0, 2, 0, 0 }
+        };
+
+        for (int i = 0; i < testpatterns.length; ++i) {
+            assertTrue(
+                Arrays.equals(testpatterns[i], testperms.numberToPattern(i))
+            );
+        }
+    }
+
+    @Test public void testPermutations0() {
         List<List<Integer>> allperms
             = new ArrayList<List<Integer>>( factorial(testlistSize) );
 
         // Create permutations of testlist0, one by one
-        for (Permutations perms = new Permutations(testlist);
-                perms.hasMoreElements(); ) {
-            List<Integer> perm = perms.nextElement();
+        for ( ; testperms.hasMoreElements(); ) {
+            List<Integer> perm = testperms.nextElement();
 
             // Permutation must have just as much elements as the original
             assertEquals(testlistSize, perm.size());
