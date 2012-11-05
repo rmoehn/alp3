@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.lang.Math;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.lang.ArrayUtils;
@@ -60,13 +61,15 @@ public class RandomPermutationsTest {
 
         // Create a new statistics object from the occurence numbers
         DescriptiveStatistics stat = new DescriptiveStatistics(TEST_CNT);
-        for (int cnt : occurenceCntFor.values()) {
-            stat.add(
-                      occurenceCntFor.values().toArray(new Double[0])
-                  )
-              );
+        for (Integer cnt : occurenceCntFor.values()) {
+            stat.add( cnt.doubleValue() );
+        }
 
-        System.out.println(stat.getMean());
-        System.out.println(stat.getStandardDeviation());
+        // Make sure that values lie within 3 standard deviations from mean
+        double mean         = stat.getMean();
+        double threeStdDevs = stat.getStandardDeviation();
+        for (Integer cnt : occurenceCntFor.values()) {
+            assertTrue( Math.abs(cnt.doubleValue() - mean) <= threeStdDevs );
+        }
     }
 }
