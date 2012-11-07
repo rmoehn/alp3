@@ -41,35 +41,35 @@ public class RandomPermutationsTest {
         }
     }
 
-    @Test public void testPermutations1() {
-        Map<List<Integer>, Integer> occurenceCntFor
-            = new HashMap<List<Integer>, Integer>(TEST_CNT, 1.0f);
+   @Test public void testPermutations1() {
+       Map<List<Integer>, Integer> occurenceCntFor
+           = new HashMap<List<Integer>, Integer>(TEST_CNT, 1.0f);
 
-        // Create a large number of permutations
-        for (int i = 0; i <= TEST_CNT; ++i) {
-            List<Integer> perm = testperms.nextElement();
+       // Create a large number of permutations
+       for (int i = 0; i <= TEST_CNT; ++i) {
+           List<Integer> perm = testperms.nextElement();
 
-            // If a permutation hadn't occured before, set its count to 0
-            if (! occurenceCntFor.containsKey(perm)) {
-                occurenceCntFor.put(perm, 0);
-            }
+           // If a permutation hadn't occured before, set its count to 0
+           if (! occurenceCntFor.containsKey(perm)) {
+               occurenceCntFor.put(perm, 0);
+           }
 
-            // Increase the number of times the current permutation occured
-            int occCnt = occurenceCntFor.get(perm);
-            occurenceCntFor.put(perm, ++occCnt);
-        }
+           // Increase the number of times the current permutation occured
+           int occCnt = occurenceCntFor.get(perm);
+           occurenceCntFor.put(perm, ++occCnt);
+       }
 
-        // Create a new statistics object from the occurence numbers
-        DescriptiveStatistics stat = new DescriptiveStatistics(TEST_CNT);
-        for (Integer cnt : occurenceCntFor.values()) {
-            stat.add( cnt.doubleValue() );
-        }
+       // Create a new statistics object from the occurence numbers
+       DescriptiveStatistics stat = new DescriptiveStatistics(TEST_CNT);
+       for (Integer cnt : occurenceCntFor.values()) {
+           stat.addValue( cnt.doubleValue() );
+       }
 
-        // Make sure that values lie within 3 standard deviations from mean
-        double mean         = stat.getMean();
-        double threeStdDevs = stat.getStandardDeviation();
-        for (Integer cnt : occurenceCntFor.values()) {
-            assertTrue( Math.abs(cnt.doubleValue() - mean) <= threeStdDevs );
-        }
-    }
+       // Make sure that values lie within 3 standard deviations from mean
+       double mean         = stat.getMean();
+       double threeStdDevs = 3 * stat.getStandardDeviation();
+       for (Integer cnt : occurenceCntFor.values()) {
+           assertTrue( Math.abs(cnt.doubleValue() - mean) <= threeStdDevs );
+       }
+   }
 }

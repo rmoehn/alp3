@@ -11,8 +11,8 @@ import java.util.Collections;
 import alp3.ueb.Slowsort;
 
 public class SlowsortTest {
-    private List<Integer> sortedList0;
-    private List<Integer> unsortedList0;
+    protected List<Integer> sortedList0;
+    protected List<Integer> unsortedList0;
 
     @Before public void setUp() {
         sortedList0 =   Arrays.asList(-13, -4, 3, 3, 800, 1344, 6000000);
@@ -28,7 +28,7 @@ public class SlowsortTest {
     }
 
     @Test public void testSort0() {
-        List<Integer> tempList0 = new ArrayList(unsortedList0);
+        List<Integer> tempList0 = new ArrayList<Integer>(unsortedList0);
         Collections.sort( tempList0     );
 
         assertEquals(tempList0, Slowsort.sort(unsortedList0));
