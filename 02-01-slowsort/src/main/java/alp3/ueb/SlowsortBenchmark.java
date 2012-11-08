@@ -10,38 +10,32 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import bb.util.Benchmark;
 
 public class SlowsortBenchmark {
-    private static final int EXEC_CNT = 5;
-    private static List<List<Integer>> testlists = new ArrayList<List<Integer>>();
-
-    static {
-        testlists.add(randomIntList(6));
-        //testlists.add(randomIntList(10));
-        //testlists.add(randomIntList(11));
-        //testlists.add(randomIntList(12));
-    }
+    private static final int EXEC_CNT = 10;
 
     public static void main(String[] args) throws Exception {
-        for (final List<Integer> testlist : testlists) {
+        int[] testElemCnts = { 9, 10, 11, 12, 13 };
+
+        // Time the slowsorts for random input lists of different lengths
+        for (final int testElemCnt : testElemCnts) {
             System.out.println(
-                "Timing normal slowsort with " + testlist.size() + " items.");
+                "Timing normal slowsort with " + testElemCnt + " items.");
             timeLongRunning(
                 new Callable<List<Integer>>() {
                     public List<Integer> call() {
-                        return Slowsort.sort(testlist);
+                        return Slowsort.sort( randomIntList(testElemCnt) );
                     }
                 },
                 EXEC_CNT
             );
 
             System.out.println(
-                "Timing randomised slowsort with "
-                + testlist.size()
-                + " items."
-            );
+                "Timing randomised slowsort with " + testElemCnt + " items.");
             timeLongRunning(
                 new Callable<List<Integer>>() {
                     public List<Integer> call() {
-                        return RandomisedSlowsort.sort(testlist);
+                        return RandomisedSlowsort.sort(
+                            randomIntList(testElemCnt)
+                        );
                     }
                 },
                 EXEC_CNT
@@ -49,12 +43,15 @@ public class SlowsortBenchmark {
         }
 
 
+        // Benchmark the slowsorts with a constant short input list
+        final List<Integer> testlist = randomIntList(6);
+
         System.out.println("Benchmarking normal slowsort.");
         System.out.println(
             new Benchmark(
                 new Callable<List<Integer>>() {
                     public List<Integer> call() {
-                        return Slowsort.sort(testlists.get(0));
+                        return Slowsort.sort(testlist);
                     }
                 }
             ).toString()
@@ -65,7 +62,7 @@ public class SlowsortBenchmark {
             new Benchmark(
                 new Callable<List<Integer>>() {
                     public List<Integer> call() {
-                        return RandomisedSlowsort.sort(testlists.get(0));
+                        return RandomisedSlowsort.sort(testlist);
                     }
                 }
             ).toString()
