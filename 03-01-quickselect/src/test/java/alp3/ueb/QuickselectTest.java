@@ -23,6 +23,9 @@ public class QuickselectTest {
             List<Integer> testlist = randomList(size);
                 // Gibt's da was von Commons?
             testlists.add(testlist);
+        // TODO: Funktioniert so noch nicht. Damit unser Algorithmus stimmt,
+        // dürfen alle Elemente der Liste nur ein Mal vorkommen. Brauchen also
+        // noch irgendeine Art von reduce.
 
             List<Integer> sortedTestlist = new ArrayList(testlist);
             Collections.sort(sortedTestlist);
@@ -41,8 +44,6 @@ public class QuickselectTest {
             for (int k = 0; k < testlist.size(); ++k) {
                 assertEquals(
                     sortedTestlist.get(k),
-                        // Funktioniert so noch nicht. Entweder mit
-                        // irgendeinem reduce oder irgendeinem anderen select.
                     Quickselect.select(k, testlist)
                 );
             }
