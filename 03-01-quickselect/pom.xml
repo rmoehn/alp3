@@ -58,7 +58,7 @@
             <archive>
               <manifest>
                 <addClasspath>true</addClasspath>
-                <mainClass>alp3.ueb.SlowsortBenchmark</mainClass>
+                <mainClass>alp3.ueb.QuickselectBenchmark</mainClass>
               </manifest>
             </archive>
           </configuration>
@@ -68,7 +68,7 @@
             <configuration>
                 <archive>
                     <manifest>
-                        <mainClass>alp3.ueb.SlowsortBenchmark</mainClass>
+                        <mainClass>alp3.ueb.QuickselectBenchmark</mainClass>
                     </manifest>
                 </archive>
                 <descriptorRefs>

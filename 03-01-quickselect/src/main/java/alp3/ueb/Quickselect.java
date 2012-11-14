@@ -6,9 +6,12 @@ import java.util.Random;
 import java.lang.Comparable;
 
 /**
- * Container class for a randomized quickselect algorithm.
+ * Container class for a randomized quickselect algorithm. (With some
+ * instrumentation for measuring the number of comparisons performed by the
+ * algorithm. (Not by asserts and stuff.))
  */
 public class Quickselect {
+    private static int comparisonNr;
     private static Random random = new Random();
 
     /**
@@ -73,6 +76,7 @@ public class Quickselect {
         int pivotInd = partition(pivotElem, lowerInd, upperInd, list);
 
         // Wanted element is in the part on the left of the pivot element
+        ++comparisonNr;
         if (lowerInd + k < pivotInd) {
             // Continue searching there
             return selectInRange(k, list, lowerInd, pivotInd);
@@ -89,6 +93,7 @@ public class Quickselect {
         }
         // Wanted element is the pivot element
         else {
+            ++comparisonNr;
             return list.get(lowerInd + k);
         }
     }
@@ -118,15 +123,20 @@ public class Quickselect {
         while (true) {
             // Find the first element in the list greater than the pivot
             while (list.get(lowerInd).compareTo(pivotElem) < 0) {
+                ++comparisonNr;
                 ++lowerInd;
             }
+            ++comparisonNr;
 
             // Find the last element in the list less than the pivot
             while (list.get(upperInd).compareTo(pivotElem) > 0) {
+                ++comparisonNr;
                 --upperInd;
             }
+            ++comparisonNr;
 
             // We're finished when the indices have crossed each other
+            ++comparisonNr;
             if (lowerInd >= upperInd) {
                 return lowerInd;
             }
@@ -136,5 +146,14 @@ public class Quickselect {
             list.set(lowerInd, list.get(upperInd));
             list.set(upperInd, interim);
         }
+    }
+
+    /**
+     * Returns and resets the number of comparisons performed by now.
+     */
+    public static int getAndResetComparisonNr() {
+        int tempCN   = comparisonNr;
+        comparisonNr = 0;
+        return tempCN;
     }
 }
