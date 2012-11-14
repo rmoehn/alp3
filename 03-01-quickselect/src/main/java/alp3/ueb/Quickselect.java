@@ -1,8 +1,9 @@
 package alp3.ueb;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.Comparable;
+import java.lang.Comparable;
 
 /**
  * Container class for a randomized quickselect algorithm.
@@ -23,6 +24,10 @@ public class Quickselect {
      */
     public static <T extends Comparable<T>> T select(int k, List<T> list) {
         // Check the arguments
+        if (list.size() == 0) { // Must be the first.
+            throw new IllegalArgumentException(
+                "Cannot operat on empty list.");
+        }
         if (k < 0) {
             throw new IndexOutOfBoundsException("Given index must be > 0.");
         }
@@ -30,16 +35,12 @@ public class Quickselect {
             throw new IndexOutOfBoundsException(
                 "Given index must lie within the input list's index range.");
         }
-        if (list.size() == 0) {
-            throw new IllegalArgumentException(
-                "Cannot operat on empty list.");
-        }
 
         // Create a copy of the input list to operate on
-        List<T> listCopy = new ArrayList(list);
+        List<T> listCopy = new ArrayList<T>(list);
 
         // Run our helper function on the full copy
-        return selectInRange(k, listCopy, 1, list.size());
+        return selectInRange(k, listCopy, 0, list.size());
     }
 
     /**
@@ -53,13 +54,13 @@ public class Quickselect {
      * @param lowerInd the start index of the range
      * @param upperInd the index after the end index of the range
      */
-    private static <T extends Comparable<T>> T select(int k, List<T> list,
-            int lowerInd, int upperInd) {
+    private static <T extends Comparable<T>> T selectInRange(int k,
+            List<T> list, int lowerInd, int upperInd) {
         // Check against the contract (the assumed one)
-        assert(false);
+        assert(k           >= 0);
         assert(lowerInd    >= 0);
-        assert(upperInd    <  list.size());
-        assert(lowerInd    < upperInd);
+        assert(upperInd    <= list.size());
+        assert(lowerInd    <  upperInd);
         assert(list.size() != 0);
 
         // Randomly choose a pivot element
@@ -71,20 +72,24 @@ public class Quickselect {
         // Partition the part of the list around the pivot element
         int pivotInd = partition(pivotElem, lowerInd, upperInd, list);
 
-
         // Wanted element is in the part on the left of the pivot element
-        if (k < (pivotInd - lowerInd)) {
+        if (lowerInd + k < pivotInd) {
             // Continue searching there
-            select(k, list, lowerInd, pivotInd);
+            return selectInRange(k, list, lowerInd, pivotInd);
         }
         // Wanted element is in the part on the right of the pivot element
-        if (k > pivotInd) {
+        else if (lowerInd + k > pivotInd) {
             // Continue searching there
-            select(k - (pivotInd + 1), list, pivotInd + 1, upperInd);
+            return selectInRange(
+                       (lowerInd + k) - (pivotInd + 1),
+                       list,
+                       pivotInd + 1,
+                       upperInd
+                   );
         }
         // Wanted element is the pivot element
         else {
-            return k;
+            return list.get(lowerInd + k);
         }
     }
 
@@ -96,13 +101,13 @@ public class Quickselect {
      *
      * @return the index of the pivot element in the rearranged list<F10>
      */
-    private static <T extends Comparable<T>> T partition(T pivotElem,
+    private static <T extends Comparable<T>> int partition(T pivotElem,
             int lowerInd, int upperInd, List<T> list) {
         /* We use Hoare's partitioning algorithm. */
 
         // Check against the contract (may be a bit overkill)
         assert(lowerInd    >= 0);
-        assert(upperInd    <  list.size());
+        assert(upperInd    <= list.size());
         assert(lowerInd    <  upperInd);
         assert(list.size() != 0);
 
@@ -128,8 +133,8 @@ public class Quickselect {
 
             // If not, swap the elements
             T interim = list.get(lowerInd);
-            list.put(lowerInd, list.get(upperInd));
-            list.put(upperInd, interim);
+            list.set(lowerInd, list.get(upperInd));
+            list.set(upperInd, interim);
         }
     }
 }

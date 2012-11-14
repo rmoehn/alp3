@@ -8,28 +8,29 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.commons.collections.list.SetUniqueList;
+
 public class QuickselectTest {
     public int[] sizes = { 1, 2, 3, 5, 8, 13, 21, 34 };
     public List<List<Integer>> testlists;
     public List<List<Integer>> sortedTestlists;
 
     @Before public void setUp() {
-        Random random   = new Random();
-        testlists       = new ArrayList(sizes.length);
-        sortedTestlists = new ArrayList(sizes.length);
+        testlists       = new ArrayList<List<Integer>>(sizes.length);
+        sortedTestlists = new ArrayList<List<Integer>>(sizes.length);
 
         // Create sorted and an unsorted versions of random lists
         for (int size : sizes) {
-            List<Integer> testlist = randomList(size);
-                // Gibt's da was von Commons?
+            // SetUniqueList implements the List interface and randomList()
+            // returns a List<Integer>. Thus the conversion is safe.
+            @SuppressWarnings("unchecked")
+            List<Integer> testlist = SetUniqueList.decorate(randomList(size));
+                // Quickselect works only with unique-element lists
             testlists.add(testlist);
-        // TODO: Funktioniert so noch nicht. Damit unser Algorithmus stimmt,
-        // dürfen alle Elemente der Liste nur ein Mal vorkommen. Brauchen also
-        // noch irgendeine Art von reduce.
 
-            List<Integer> sortedTestlist = new ArrayList(testlist);
+            List<Integer> sortedTestlist = new ArrayList<Integer>(testlist);
             Collections.sort(sortedTestlist);
-            sortedTestlists.add(sortedTestlists);
+            sortedTestlists.add(sortedTestlist);
         }
     }
 
@@ -58,16 +59,27 @@ public class QuickselectTest {
     }
 
     // Test with too small index
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=IndexOutOfBoundsException.class)
     public void testException1() {
         Quickselect.select(-10, testlists.get(2));
     }
 
     // Test with too large index
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=IndexOutOfBoundsException.class)
     public void testException2() {
         List<Integer> testlist = testlists.get(3);
         Quickselect.select(testlist.size(), testlist);
     }
 
+    // Not enough time to write a proper utility class
+    private static List<Integer> randomList(int size) {
+        Random random            = new Random();
+        List<Integer> randomList = new ArrayList<Integer>(size);
+
+        for (int i = 0; i < size; ++i) {
+            randomList.add(random.nextInt(9999));
+        }
+
+        return randomList;
+    }
 }
