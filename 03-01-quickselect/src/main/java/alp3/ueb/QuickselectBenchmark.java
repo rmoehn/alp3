@@ -22,7 +22,7 @@ class QuickselectBenchmark {
      * though...
      */
 
-    private static final int EXEC_CNT = 50;
+    private static final int EXEC_CNT = 100;
     private static Random random = new Random();
 
     private static final String COUNT_COMPARISONS = "count";

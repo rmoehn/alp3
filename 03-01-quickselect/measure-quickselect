@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+
+use 5.14.2;
+use strict;
+use warnings;
+
+my @lengths = qw( 1 5 10 50 100 250 500 1000 2000 3000 4000 5000 6000 7000
+        8000 9000 10000 11000 12000 15000 16000 17000 18000 19000 20000 );
+
+unlink "comparison-counts.txt";
+
+for my $length (@lengths) {
+    system "java -jar target/03-01-quickselect-1.0-SNAPSHOT-jar-with-dependencies.jar"
+           . " count $length 2>/dev/null >> comparison-counts.txt";
+}
