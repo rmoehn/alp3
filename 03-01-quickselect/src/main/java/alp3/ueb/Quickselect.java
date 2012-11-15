@@ -83,6 +83,7 @@ public class Quickselect {
         }
         // Wanted element is in the part on the right of the pivot element
         else if (lowerInd + k > pivotInd) {
+            ++comparisonNr;
             // Continue searching there
             return selectInRange(
                        (lowerInd + k) - (pivotInd + 1),
