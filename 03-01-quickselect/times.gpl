@@ -1,0 +1,16 @@
+set xrange [0:11000]
+set yrange [0:0.0012]
+
+set encoding utf8
+set xlabel "Listenlänge"
+set ylabel "Ausführungszeit / s"
+
+set grid
+unset key
+
+m = 1
+f(x) = m*x
+fit [x=1000:10000] f(x) 'times.txt' using 1:2 via m
+set output 'times.ps'
+set terminal postscript enhanced
+plot 'times.txt' using 1:2:3 with errorbars, f(x)

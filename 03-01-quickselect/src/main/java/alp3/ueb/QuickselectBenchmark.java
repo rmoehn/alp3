@@ -102,10 +102,10 @@ class QuickselectBenchmark {
                     catch (Exception e) {
                         throw new RuntimeException("Error in benchmark.");
                     }
-                    System.err.println(benchmark.toString());
+                    System.out.println(benchmark.toString());
 
                     // Print the performance values
-                    System.out.println(
+                    System.err.println(
                         listLength            + "\t"
                         + benchmark.getMean() + "\t"
                         + benchmark.getSd()

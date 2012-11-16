@@ -1,12 +1,16 @@
-set xrange [0:21000]
-set yrange [0:47000]
+set xrange [0:11000]
+set yrange [0:35000]
+
+set encoding utf8
+set xlabel "Listenlänge"
+set ylabel "Anzahl Vergleiche"
 
 set grid
 unset key
 
 m = 4
 f(x) = m*x
-fit [x=1000:21000] f(x) 'comparison-counts.txt' using 1:2 via m
+fit [x=1000:10000] f(x) 'comparison-counts.txt' using 1:2 via m
 set output 'comparison-counts.ps'
 set terminal postscript enhanced
 plot 'comparison-counts.txt' using 1:2:3 with errorbars, f(x)
