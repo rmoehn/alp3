@@ -174,7 +174,7 @@ public final class Dict<K extends Comparable<K>, V>
      * doesn't exist.
      */
     private int calcNewBucketFor(K key) {
-        return key.hashCode() % curListLength;
+        return mymod(key.hashCode(), curListLength);
     }
 
     /**
@@ -213,5 +213,15 @@ public final class Dict<K extends Comparable<K>, V>
                 einfuege(entry);
             }
         }
+    }
+
+    /**
+     * Returns an always-positive remainder of the division of n1 by n2. This
+     * is different from the Java %, but required for a hash.
+     */
+    private static int mymod(int n1, int n2) {
+        int res = n1 % n2;
+
+        return res < 0 ? res + n2 : res;
     }
 }
