@@ -44,21 +44,21 @@ public class HashfuncStats {
         // Hashes a string with Java's built-in hashCode()
         hashers.add(new Hasher<String>() {
             public int run(String string) {
-                return string.hashCode() % tableSize;
+                return mymod(string.hashCode(), tableSize);
             }
         });
 
         // Hashes a string by calculating its length
         hashers.add(new Hasher<String>() {
             public int run(String string) {
-                return string.length() % tableSize;
+                return mymod(string.length(), tableSize);
             }
         });
 
         // Hashes a string by calculating the sum of its characters
         hashers.add(new Hasher<String>() {
             public int run(String string) {
-                return charSum(string) % tableSize;
+                return mymod(charSum(string), tableSize);
             }
         });
 
@@ -72,7 +72,7 @@ public class HashfuncStats {
         // Hashes a string by calculating the product of its characters
         hashers.add(new Hasher<String>() {
             public int run(String string) {
-                return charProd(string) % tableSize;
+                return mymod(charProd(string), tableSize);
             }
         });
 
@@ -93,13 +93,13 @@ public class HashfuncStats {
                     result += 31 * result + c;
                 }
 
-                return result % tableSize;
+                return mymod(result, tableSize);
             }
         });
 
 
         // The array to hold the hash value frequencies by hasher
-        int[][] frequencies = new int[hashers.size()][tableSize - 1];
+        int[][] frequencies = new int[tableSize][hashers.size()];
 
         // Create a scanner for splitting the input file into words
         Scanner inputWords = new Scanner(new File(argv[1]));
@@ -114,18 +114,19 @@ public class HashfuncStats {
                 int hashval = hashers.get(i).run(word);
 
                 // Increment the frequency of this particular hash value
-                ++frequencies[i][hashval];
+                ++frequencies[hashval][i];
             }
         }
 
         // Print the frequencies to standard output for each hash value...
-        for (int[] freqsForHashval : frequencies) {
-            String hashValLine = "";
+        for (int hashval = 0; hashval < frequencies.length; ++hashval) {
+            int[] freqsForHashval = frequencies[hashval];
+            String hashValLine = Integer.toString(hashval);
 
             // ...with columns for the different hashers
             for (int freqForHasher : freqsForHashval) {
-                hashValLine += Integer.toString(freqForHasher);
                 hashValLine += "\t";
+                hashValLine += Integer.toString(freqForHasher);
             }
 
             System.out.println(hashValLine);
@@ -174,5 +175,15 @@ public class HashfuncStats {
                        )
                    )
                )).intValue();
+    }
+
+    /**
+     * Returns the remainder of the division of n1 by n2. This implementation,
+     * as opposed to Java's, returns only positive numbers.
+     */
+    private static int mymod(int n1, int n2) {
+        int rem = n1 % n2;
+
+        return rem >= 0 ? rem : rem + n2;
     }
 }
