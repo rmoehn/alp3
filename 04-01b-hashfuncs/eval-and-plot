@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+
+use 5.14.2;
+use strict;
+use warnings;
+use autodie qw(:all);
+
+my @hashtable_sizes = qw(16 20 23 83 100 128 953 1000 1024);
+my $jar_path        = 'target/04-01b-hashfuncs-1.0-SNAPSHOT.jar';
+my $text_path       = 'reduced-all.txt';
+my $hashfunc_cnt    = 6;
+
+for my $ht_size (@hashtable_sizes) {
+    system "java -jar $jar_path $ht_size $text_path"
+           . " > frequencies-$ht_size.dat";
+
+    my $gnuplot_file = construct_gnuplot_file($ht_size, $hashfunc_cnt);
+    open my $gnuplot, "|gnuplot";
+    print {$gnuplot} $gnuplot_file;
+}
+
+sub construct_gnuplot_file {
+    my ($ht_size, $hashfunc_cnt) = @_;
+
+    my $gnuplot = <<"END_GNUPLOT";
+set xrange [0:$ht_size]
+set yrange [0:]
+
+set encoding utf8
+set xlabel "Wert der Hashfunktion"
+set ylabel "Häufigkeit"
+
+unset key
+set style data boxes
+
+set output 'frequencies-$ht_size.ps'
+set terminal postscript enhanced
+
+END_GNUPLOT
+
+    for my $i (1 .. $hashfunc_cnt) {
+        my $data_col = $i + 1;
+        $gnuplot .= "plot 'frequencies-$ht_size.dat' using 1:$data_col\n";
+    }
+
+    return $gnuplot;
+}

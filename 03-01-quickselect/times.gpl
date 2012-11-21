@@ -14,3 +14,4 @@ fit [x=1000:10000] f(x) 'times.txt' using 1:2 via m
 set output 'times.ps'
 set terminal postscript enhanced
 plot 'times.txt' using 1:2:3 with errorbars, f(x)
+plot 'times.txt' using 1:2:3 with errorbars, f(x)
