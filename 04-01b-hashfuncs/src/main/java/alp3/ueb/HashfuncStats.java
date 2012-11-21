@@ -48,13 +48,6 @@ public class HashfuncStats {
             }
         });
 
-        // Hashes a string by calculating its length
-        hashers.add(new Hasher<String>() {
-            public int run(String string) {
-                return mymod(string.length(), tableSize);
-            }
-        });
-
         // Hashes a string by calculating the sum of its characters
         hashers.add(new Hasher<String>() {
             public int run(String string) {
