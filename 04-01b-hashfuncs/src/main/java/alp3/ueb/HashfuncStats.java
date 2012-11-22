@@ -83,7 +83,7 @@ public class HashfuncStats {
                 int result = 17;
 
                 for (char c : chars) {
-                    result += 31 * result + c;
+                    result = 31 * result + c;
                 }
 
                 return mymod(result, tableSize);
