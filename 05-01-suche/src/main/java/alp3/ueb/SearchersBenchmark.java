@@ -14,41 +14,68 @@ public class SearchersBenchmark {
     /**
      * Compares binary and interpolation search on arrays of the given length.
      */
-    public static void main (String[] argv) throws Exception {
+    public static void main (String[] argv) {
         final RandomUtils randomList = new RandomUtils();
         final Random randomScal      = new Random();
         final int testarrayLength    = Integer.parseInt(argv[0]);
 
-        // Benchmark the binary search
-        System.out.println(new Benchmark(
-            new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    int[] testarray
-                        = randomList.randomIntArray(testarrayLength);
-                    Arrays.sort(testarray);
+        try {
+            // Benchmark the binary search
+            System.out.println(new Benchmark(
+                new Callable<Integer>() {
+                    public Integer call() throws Exception {
+                        int[] testarray
+                            = randomList.randomIntArray(testarrayLength);
+                        Arrays.sort(testarray);
 
-                    return Searchers.binarySearch(
-                               testarray,
-                               randomScal.nextInt(testarrayLength)
-                           );
+                        // Sometimes with elements that are there...
+                        if (randomScal.nextBoolean()) {
+                            return Searchers.binarySearch(
+                                       testarray,
+                                       randomScal.nextInt()
+                                   );
+                        }
+                        // ...sometimes with elements that are not
+                        else {
+                            return Searchers.binarySearch(
+                                       testarray,
+                                       testarray[
+                                           randomScal.nextInt(testarrayLength)
+                                       ]
+                                   );
+                        }
+                    }
                 }
-            }
-        ).toString());
+            ).toString());
 
-        // Benchmark the interpolation search
-        System.out.println(new Benchmark(
-            new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    int[] testarray
-                        = randomList.randomIntArray(testarrayLength);
-                    Arrays.sort(testarray);
+            // Benchmark the interpolation search
+            System.out.println(new Benchmark(
+                new Callable<Integer>() {
+                    public Integer call() throws Exception {
+                        int[] testarray
+                            = randomList.randomIntArray(testarrayLength);
+                        Arrays.sort(testarray);
 
-                    return Searchers.interpolationSearch(
-                               testarray,
-                               randomScal.nextInt(testarrayLength)
-                           );
+                        if (randomScal.nextBoolean()) {
+                            return Searchers.interpolationSearch(
+                                       testarray,
+                                       randomScal.nextInt()
+                                   );
+                        }
+                        else {
+                            return Searchers.binarySearch(
+                                       testarray,
+                                       testarray[
+                                           randomScal.nextInt(testarrayLength)
+                                       ]
+                                   );
+                        }
+                    }
                 }
-            }
-        ).toString());
+            ).toString());
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
