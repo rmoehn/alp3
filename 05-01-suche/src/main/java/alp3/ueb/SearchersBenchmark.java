@@ -63,7 +63,7 @@ public class SearchersBenchmark {
                                    );
                         }
                         else {
-                            return Searchers.binarySearch(
+                            return Searchers.interpolationSearch(
                                        testarray,
                                        testarray[
                                            randomScal.nextInt(testarrayLength)
