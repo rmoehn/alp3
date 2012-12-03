@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+
+use 5.14.2;
+use strict;
+use warnings;
+use autodie qw(:all);
+
+my @sizes = qw(10001 100001 1000001);
+
+for my $size (@sizes) {
+    say $size;
+    system "java -jar target/05-01-suche-1.0-SNAPSHOT-jar-with-dependencies.jar $size";
+    say;
+    my $bla = <STDIN>;
+}
