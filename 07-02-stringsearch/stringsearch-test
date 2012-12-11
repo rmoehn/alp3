@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+use 5.14.2;
+use warnings;
+use strict;
+use autodie qw(:all);
+
+use Perl6::Slurp;
+use Readonly;
+
+Readonly my $SEARCH_PROG => './pseudo-grep';
+
+Readonly my $MIN_WORDLEN  => 1;
+Readonly my $MAX_WORDLEN  => 150;
+Readonly my @NEG_WORDS => (
+    'jx',
+    'Trockenbau',
+    'Rot-Schwarz-Baum',
+    "Yt\nong",
+);
+
+# Read in the whole file specified at the command line
+Readonly my $TEXT_FILE => $ARGV[0];
+Readonly my $TEXT      => slurp $TEXT_FILE;
+Readonly my $TEXTLEN   => length($TEXT);
+
+# For a range of word lengths
+for my $wordlen ($MIN_WORD_LEN .. $MAX_WORD_LEN) {
+    # Pick a random word from the text
+    my $pattern = substr(randint(0, $TEXTLEN - $wordlen), $wordlen);
+
+    # Find all occurences
+    my @perl_occs = find_offsets($TEXT, $pattern);
+    my @c_occs    = find_offsets_c($SEARCH_PROG, $TEXT, $pattern);
+
+    # Fail if the lists are not the same
+    if (@perl_occs != @c_occs) {
+        die "Test failed: [@perl_occs] != [@c_occs]\n";
+    }
+}
+
+# Make sure that words not in the text are not found
+for my $word (@NEG_WORDS) {
+    if (find_offsets_c($SEARCH_PROG, $TEXT, $pattern) != ()) {
+        die "Test failed: Found occurence of $pattern.";
+    }
+}
+
+
+###################################
+# Purpose    : Search a text for occurences of the specified pattern
+# Parameters :
+#   $text     the string to be searched
+#   $pattern  the string to be sought
+# Returns    : an array of all occurences' offsets
+sub find_offsets {
+    my ($text, $pattern) = @_;
+    my $patlen  = length($pattern);
+    my $textlen = length($textlen);
+    my @offsets;
+
+    # Go through the text offset by offset
+    for my $offset (0 .. ($textlen - $patlen)) {
+        # Add the substring at the current offset if it matches the pattern
+        if (substr($text, $offset, $patlen) eq $pattern) {
+            push @offsets, $offset;
+        }
+    }
+
+    return @offsets;
+}
+
+
+sub find_offsets_c {
+    my ($search_prog, $text_file, $pattern);
+    return split(chomp `$search_prog $text_file $pattern`);
+}
