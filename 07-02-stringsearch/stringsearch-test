@@ -5,6 +5,7 @@ use warnings;
 use strict;
 use autodie qw(:all);
 
+use Math::Random::OO::UniformInt;
 use Perl6::Slurp;
 use Readonly;
 
@@ -21,27 +22,29 @@ Readonly my @NEG_WORDS => (
 
 # Read in the whole file specified at the command line
 Readonly my $TEXT_FILE => $ARGV[0];
-Readonly my $TEXT      => slurp $TEXT_FILE;
+my $TEXT = slurp $TEXT_FILE;
 Readonly my $TEXTLEN   => length($TEXT);
 
 # For a range of word lengths
-for my $wordlen ($MIN_WORD_LEN .. $MAX_WORD_LEN) {
+for my $wordlen ($MIN_WORDLEN .. $MAX_WORDLEN) {
     # Pick a random word from the text
-    my $pattern = substr(randint(0, $TEXTLEN - $wordlen), $wordlen);
+    my $random  = Math::Random::OO::UniformInt->new($TEXTLEN - $wordlen);
+    my $pattern = substr($TEXT, $random->next(), $wordlen);
 
     # Find all occurences
     my @perl_occs = find_offsets($TEXT, $pattern);
-    my @c_occs    = find_offsets_c($SEARCH_PROG, $TEXT, $pattern);
+    my @c_occs    = find_offsets_c($SEARCH_PROG, $TEXT_FILE, $pattern);
 
     # Fail if the lists are not the same
     if (@perl_occs != @c_occs) {
+        say qq("->$pattern<-");
         die "Test failed: [@perl_occs] != [@c_occs]\n";
     }
 }
 
 # Make sure that words not in the text are not found
-for my $word (@NEG_WORDS) {
-    if (find_offsets_c($SEARCH_PROG, $TEXT, $pattern) != ()) {
+for my $pattern (@NEG_WORDS) {
+    if (find_offsets_c($SEARCH_PROG, $TEXT_FILE, $pattern)) {
         die "Test failed: Found occurence of $pattern.";
     }
 }
@@ -56,7 +59,7 @@ for my $word (@NEG_WORDS) {
 sub find_offsets {
     my ($text, $pattern) = @_;
     my $patlen  = length($pattern);
-    my $textlen = length($textlen);
+    my $textlen = length($text);
     my @offsets;
 
     # Go through the text offset by offset
@@ -70,8 +73,9 @@ sub find_offsets {
     return @offsets;
 }
 
-
 sub find_offsets_c {
-    my ($search_prog, $text_file, $pattern);
-    return split(chomp `$search_prog $text_file $pattern`);
+    my ($search_prog, $text_file, $pattern) = @_;
+    open my $searcher, '-|', $search_prog, $pattern, $text_file;
+    chomp(my $offset_string = <$searcher>);
+    return split / /, $offset_string;
 }

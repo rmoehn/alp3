@@ -1,7 +1,6 @@
 CFLAGS = -Wall -std=c99
 
-cat: cat.c errors.h
-
-wc: wc.c errors.h
-
 pseudo-grep: pseudo-grep.c errors.h
+
+test: pseudo-grep stringsearch-test moby-dick.txt special-test.txt
+	./stringsearch-test deflated-moby-dick.txt
