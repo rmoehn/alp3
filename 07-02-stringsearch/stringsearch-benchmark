@@ -1,0 +1,107 @@
+#!/usr/bin/perl
+
+use 5.14.2;
+use warnings;
+use strict;
+use autodie qw(:all);
+
+use File::Temp qw(tempfile);
+use Perl6::Slurp;
+use Time::HiRes qw(gettimeofday tv_interval);
+use Math::Random::OO::UniformInt;
+
+use Readonly;
+
+Readonly my @TEXT_PERCENTAGES => (25, 50, 75, 100);
+Readonly my @PAT_LENGTHS      => (1, 17, 77, 168);
+Readonly my $EXECS_PER_PAT    => 100;
+Readonly my $SUPER_EXECS      => 100;
+
+Readonly my $TEXT_FILE  => $ARGV[0];
+Readonly my $SEARCHER   => './pseudo-grep';
+
+open my $SCATTERDATA_FH, '>', 'benchmark-times.dat';
+
+# Read in the whole text
+my $FULL_TEXT = slurp $TEXT_FILE;
+Readonly my $FULL_TEXT_LEN => length($FULL_TEXT);
+
+=begin Clarification:
+A benchmark is performed for every pair combination of @TEXT_PERCENTAGES, and
+@PAT_LENGTHS. @TEXT_PERCENTAGES is the percentage of the length of the input
+text that is search. @PAT_LENGTHS is the lengths of patterns sought for. The
+longest length should be shorter than the smallest part of the text searched.
+
+The patterns of different length are randomly chosen from the text and sought
+$EXECS_PER_PAT times. Random choice and repeated search are done
+$SUPER_EXECS times, thus there are $EXECS_PER_PAT * $SUPER_EXECS executions
+for every text percentage/pattern length pair.
+
+=end
+
+=cut
+
+# Print a header for our statistics
+say STDERR 'n ... Länge des Textes';
+say { *STDERR } 'm ... Länge des Musters';
+say { *STDERR } 't ... Zeit je Suche';
+say { *STDERR } '';
+say { *STDERR } ' n         m      t / ms';
+say { *STDERR } '-------------------------------';
+
+# Loop over different text sizes
+for my $text_percentage (@TEXT_PERCENTAGES) {
+    # Create text of the desired length from the given text
+    my $part_text_file = File::Temp->new();
+    my $part_text_len  = $FULL_TEXT_LEN * $text_percentage / 100;
+    print { $part_text_file } substr($FULL_TEXT, 0, $part_text_len);
+    $part_text_file->close();
+
+    # Loop over different pattern lengths
+    for my $pat_len (@PAT_LENGTHS) {
+        # Create random offset generator for the given text and pattern length
+        my $random_offset
+            = Math::Random::OO::UniformInt->new($part_text_len - $pat_len);
+
+        # Initialise total elapsed time
+        my $total_time = 0;
+
+        # Perform many executions... (of many executions)
+        for my $super_exec_nr (1 .. $SUPER_EXECS) {
+            # Pick a random part of the text to search for
+            my $pattern
+                = substr($FULL_TEXT, $random_offset->next(), $pat_len);
+            my $pattern_time = 0;
+
+            # Take start time
+            my $t_start = [gettimeofday()];
+
+            # Perform many executions
+            for my $exec_per_pat_nr (1 .. $EXECS_PER_PAT) {
+                system $SEARCHER, $pattern, $part_text_file->filename();
+            }
+
+            # Store elapsed time for this pattern
+            $pattern_time = tv_interval($t_start);
+
+            # Print one dot to the scatterplot data file
+            printf { $SCATTERDATA_FH } (
+                "%8d  %4.6f\n",
+                $part_text_len,
+                $pattern_time / $EXECS_PER_PAT * 1000
+            );
+
+            # Add time per pattern to total time
+            $total_time += $pattern_time;
+        }
+
+
+        # Print statistics
+        printf { *STDERR } (
+            "%8d  %3d  %4.6f\n",
+            $part_text_len,
+            $pat_len,
+            $total_time / ($SUPER_EXECS * $EXECS_PER_PAT) * 1000
+        );
+    }
+}
