@@ -1,0 +1,8 @@
+set style data dots
+
+set xlabel 'Länge des Textes'
+set ylabel 'Ausführungszeit / ms'
+
+set output 'benchmark-times.ps'
+set terminal postscript enhanced
+plot 'benchmark-times.dat'
