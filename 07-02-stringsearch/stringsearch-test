@@ -7,6 +7,7 @@ use autodie qw(:all);
 
 use Math::Random::OO::UniformInt;
 use Perl6::Slurp;
+use List::MoreUtils qw(pairwise);
 use Readonly;
 
 Readonly my $SEARCH_PROG => './pseudo-grep';
@@ -36,10 +37,12 @@ for my $wordlen ($MIN_WORDLEN .. $MAX_WORDLEN) {
     my @c_occs    = find_offsets_c($SEARCH_PROG, $TEXT_FILE, $pattern);
 
     # Fail if the lists are not the same
-    if (@perl_occs != @c_occs) {
-        say qq("->$pattern<-");
-        die "Test failed: [@perl_occs] != [@c_occs]\n";
-    }
+    pairwise {
+        if ($a != $b) {
+            say qq("->$pattern<-");
+            die "Test failed: [@perl_occs] != [@c_occs]\n";
+        }
+    } @perl_occs, @c_occs;
 }
 
 # Make sure that words not in the text are not found

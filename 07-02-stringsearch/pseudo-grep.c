@@ -51,7 +51,7 @@ void pseudo_grep(const char pattern[], int length, FILE *stream)
      *
      * The behaviour for patterns containing \n is undefined.
      */
-    long offset       = 0;
+    long offset       = -1;
     int matched_chars = 0;
 
     // Read the stream character by character

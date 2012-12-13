@@ -1,5 +1,7 @@
 set style data dots
 
+set encoding utf8
+
 set xlabel 'Länge des Textes'
 set ylabel 'Ausführungszeit / ms'
 
