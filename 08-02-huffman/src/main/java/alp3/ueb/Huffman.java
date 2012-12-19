@@ -130,9 +130,88 @@ public class Huffman {
         // Write the information necessary for decoding into a file
         ObjectOutputStream treeOutStream
             = new ObjectOutputStream(FileOutputStream(treefile));
+        outStream.writeInt(bytesAtOnce);
         outStream.writeInt(minCodeSize);
         outStream.writeInt(maxCodeSize);
         outStream.writeObject(byteCombFor);
+        outStream.close();
+    }
+
+    /** Decodes the data encoded using Huffman's method in {@code infileName}
+     * with the information (Huffman tree equivalent) in {@code treefile} and
+     * stores the result in {@code outfile}.
+     */
+    public static void decode(String infileName, String outfile, String
+                              treefile) {
+        /*
+         * Decoding using Huffman's method usually works like this: Bit after
+         * bit is read from the input and a path in a tree is followed
+         * according to this bits until a leaf is reached and this leaf
+         * contains the byte combination encoded by the bits read.
+         *
+         * However, instead of a tree we use a Map: we read bit after bit,
+         * building up a little bit vector. Every time a bit is read, the new
+         * bit vector is looked up in the map. If it is found, we have got the
+         * byte combination encoded by that bit vector. If not, we try with
+         * the next bit.
+         *
+         * This looking up is bounded by two values obtained during encoding:
+         * We start with looking up minCodeSize bits from the bit vector, as
+         * it would be a waste of time looking up shorter codes that don't
+         * exist anyway. We stop decoding if there is no map entry found after
+         * trying a code of maxCodeSize bits.
+         */
+
+        // Read the information for decoding
+        ObjectInputStream treeInStream
+            = new ObjectInputStream(new FileInputStream(treefile));
+        int bytesAtOnce = treefile.readInt();
+        int minCodeSize = treefile.readInt();
+        int maxCodeSize = treefile.readInt();
+        Map<BitSet, Integer> byteCombFor
+            = (Map<BitSet, Integer> treefile.readObject();
+        treeInStream.close();
+
+        // Read the whole encoded data into a bit vector
+        File infile          = new File(infileName);
+        InputStream inStream = new FileInputStream(infile);
+        byte encodedBytes[infile.length()];
+        inStream.read(encodedBytes);
+        BitSet encoded = new BitSet.valueOf(encodedBytes);
+        inStream.close();
+
+        // Open the output file
+        OutputStream outStream
+            = new BufferedOutputStream(new FileOutputStream(outfile));
+
+        // Go through the BitSet
+        int bitSetOffset = 0;
+        CODE:
+        while (1) {
+            // Try and read the code for one byte combination
+            for (int codelen = minCodeSize; codelen <= maxCodeSize; ++codelen)
+                    {
+                // Look up codelen bits
+                BitSet potentialCode
+                    = encoded.get(bitSetOffset, bitSetOffset + codelen);
+                Integer byteComb = byteCombFor.get(potentialCode) {
+
+                // If they represent a code
+                if (byteComb != null) {
+                    // Write the indicated byte combination to the output file
+                    writeN(bytesAtOnce, byteComb, outStream);
+
+                    // Go to the next code
+                    bitSetOffset += potentialCode.size();
+                    continue CODE;
+                }
+            }
+
+            // There is nothing more to decode, so stop decoding
+            break CODE;
+        }
+
+        // Close the output file
         outStream.close();
     }
 
@@ -157,7 +236,7 @@ public class Huffman {
     }
 
     /**
-     * Reads {@code count} (at most four) Bytes from {@code inStream} and
+     * Reads {@code count} (at most four) bytes from {@code inStream} and
      * packs them into an int. Returns -1 if there is no more to read.
      */
     private static int readN(int count, InputStream inStream) {
@@ -180,5 +259,23 @@ public class Huffman {
         }
 
         return res;
+    }
+
+    /**
+     * Writes {@code count} (at most four) bytes packed together in the {@code
+     * int} {@code bytes} to {@code outStream}.
+     */
+    private static void writeN(int count, int bytes, OutputStream outStream) {
+        assert(count > 0);
+        assert(count < 5);
+
+        byte buffer[count]
+
+        // Transform the int into an array of bytes
+        for (int i = 0; i < count; ++i) {
+            buffer[count - i - 1] = bytes & (0xff << i);
+        }
+
+        outStream.write(buffer);
     }
 }
