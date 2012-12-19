@@ -1,6 +1,25 @@
 package alp3.ueb;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.BitSet;
+import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.apache.commons.lang3.tuple.MutablePair;
 
 /**
  * Container class for methods encoding and decoding a text using Huffman's
@@ -15,7 +34,7 @@ public class Huffman {
      * one leave of the Huffman tree.
      */
     public static void encode(String infile, String outfile, String treefile,
-                              int bytesAtOnce) {
+            int bytesAtOnce) throws FileNotFoundException, IOException {
         // Determine the maximum number of different leaves
         assert(bytesAtOnce > 0);
         assert(bytesAtOnce < 5);
@@ -26,13 +45,14 @@ public class Huffman {
             = new BufferedInputStream( new FileInputStream(infile) );
 
         // Count how often each byte combination occurs
-        Map<ArrayList<Byte>, Integer> frequencyOf
+        Map<Integer, Integer> frequencyOf
             = new HashMap<Integer, Integer>(maxLeavesCnt);
         int curBytes;
         while ((curBytes = readN(bytesAtOnce, inStream)) != -1) {
             // Increase the number of occurences of an already seen byte combo
             if (frequencyOf.containsKey(curBytes)) {
-                ++frequencyOf.get(curBytes);
+                int freq = frequencyOf.get(curBytes) + 1;
+                frequencyOf.put(curBytes, freq);
             }
             // Create new entry for yet unseen byte combination
             else {
@@ -41,18 +61,18 @@ public class Huffman {
         }
 
         // Create nodes for the Huffman tree from the frequencies
-        Queue< Pair<Integer, List<Integer>> > huffmanNodes
-            = new PriorityQueue< Pair<Integer, List<Integer>> >(
+        Queue< MutablePair<Integer, List<Integer>> > huffmanNodes
+            = new PriorityQueue< MutablePair<Integer, List<Integer>> >(
                   frequencyOf.size()
               );
-        for (Map.Entry<Integer, Integer> entry : frequencyOf) {
+        for (Map.Entry<Integer, Integer> entry : frequencyOf.entrySet()) {
             // Create list of byte combinations belonging to this node
             List<Integer> byteCombos = new LinkedList<Integer>();
             byteCombos.add(entry.getValue());
 
             // Add the weight and the list of combos to the priority queue
             huffmanNodes.add(
-                new MutablePair(
+                new MutablePair<Integer, List<Integer>>(
                     entry.getKey(),
                     byteCombos
                 )
@@ -64,8 +84,8 @@ public class Huffman {
             = new HashMap<Integer, BitSet>(maxLeavesCnt);
         while (huffmanNodes.size() > 1) {
             // Remove the two smallest nodes from the queue
-            Pair<Integer, List<Integer>> node0 = huffmanNodes.remove();
-            Pair<Integer, List<Integer>> node1 = huffmanNodes.remove();
+            MutablePair<Integer, List<Integer>> node0 = huffmanNodes.remove();
+            MutablePair<Integer, List<Integer>> node1 = huffmanNodes.remove();
 
             // Append 0 to the codes of all bytes combos in the first node
             extendCodes(node0.getRight(), codeFor, false);
@@ -74,7 +94,8 @@ public class Huffman {
             extendCodes(node1.getRight(), codeFor, true);
 
             // Join the two nodes and reinsert the joint into the queue
-            node0.getLeft() += node1.getLeft();
+            int newWeight = node0.getLeft() + node1.getLeft();
+            node0.setLeft(newWeight);
             node0.getRight().addAll(node1.getRight());
             huffmanNodes.add(node0);
         }
@@ -84,9 +105,9 @@ public class Huffman {
             = new HashMap<BitSet, Integer>(maxLeavesCnt);
         int minCodeSize = Integer.MAX_VALUE;
         int maxCodeSize = 0;
-        for (Map.Entry<Integer, BitSet> : codeFor) {
+        for (Map.Entry<Integer, BitSet> entry : codeFor.entrySet()) {
             // Reverse the code for the byte combination
-            BitSet code    = codeFor.getValue();
+            BitSet code    = entry.getValue();
             int codeSize   = code.size();
             BitSet revCode = new BitSet(codeSize);
             for (int i = 0; i < codeSize; ++i) {
@@ -94,10 +115,10 @@ public class Huffman {
             }
 
             // Put the reversed code in the map
-            codeFor.setValue(revCode);
+            entry.setValue(revCode);
 
             // Add a mapping from the bit vector to the byte combination
-            byteCombFor.put(codeFor.getValue(), codeFor.getKey());
+            byteCombFor.put(entry.getValue(), entry.getKey());
 
             // Update the value for the shortest code if this one is shorter
             if (codeSize < minCodeSize) {
@@ -129,20 +150,21 @@ public class Huffman {
 
         // Write the information necessary for decoding into a file
         ObjectOutputStream treeOutStream
-            = new ObjectOutputStream(FileOutputStream(treefile));
-        outStream.writeInt(bytesAtOnce);
-        outStream.writeInt(minCodeSize);
-        outStream.writeInt(maxCodeSize);
-        outStream.writeObject(byteCombFor);
-        outStream.close();
+            = new ObjectOutputStream(new FileOutputStream(treefile));
+        treeOutStream.writeInt(bytesAtOnce);
+        treeOutStream.writeInt(minCodeSize);
+        treeOutStream.writeInt(maxCodeSize);
+        treeOutStream.writeObject(byteCombFor);
+        treeOutStream.close();
     }
 
     /** Decodes the data encoded using Huffman's method in {@code infileName}
      * with the information (Huffman tree equivalent) in {@code treefile} and
      * stores the result in {@code outfile}.
      */
-    public static void decode(String infileName, String outfile, String
-                              treefile) {
+    public static void decode(String infileName, String outfile,
+            String treefile) throws FileNotFoundException, IOException,
+            ClassNotFoundException {
         /*
          * Decoding using Huffman's method usually works like this: Bit after
          * bit is read from the input and a path in a tree is followed
@@ -165,19 +187,23 @@ public class Huffman {
         // Read the information for decoding
         ObjectInputStream treeInStream
             = new ObjectInputStream(new FileInputStream(treefile));
-        int bytesAtOnce = treefile.readInt();
-        int minCodeSize = treefile.readInt();
-        int maxCodeSize = treefile.readInt();
+        int bytesAtOnce = treeInStream.readInt();
+        int minCodeSize = treeInStream.readInt();
+        int maxCodeSize = treeInStream.readInt();
+
+        @SuppressWarnings("unchecked")
         Map<BitSet, Integer> byteCombFor
-            = (Map<BitSet, Integer> treefile.readObject();
+            = (Map<BitSet, Integer>) treeInStream.readObject();
+            // This is safe, because we wrote a HashMap
+
         treeInStream.close();
 
         // Read the whole encoded data into a bit vector
         File infile          = new File(infileName);
         InputStream inStream = new FileInputStream(infile);
-        byte encodedBytes[infile.length()];
+        byte[] encodedBytes  = new byte[(int) infile.length()];
         inStream.read(encodedBytes);
-        BitSet encoded = new BitSet.valueOf(encodedBytes);
+        BitSet encoded       = BitSet.valueOf(encodedBytes);
         inStream.close();
 
         // Open the output file
@@ -187,14 +213,14 @@ public class Huffman {
         // Go through the BitSet
         int bitSetOffset = 0;
         CODE:
-        while (1) {
+        while (true) {
             // Try and read the code for one byte combination
             for (int codelen = minCodeSize; codelen <= maxCodeSize; ++codelen)
                     {
                 // Look up codelen bits
                 BitSet potentialCode
                     = encoded.get(bitSetOffset, bitSetOffset + codelen);
-                Integer byteComb = byteCombFor.get(potentialCode) {
+                Integer byteComb = byteCombFor.get(potentialCode);
 
                 // If they represent a code
                 if (byteComb != null) {
@@ -239,12 +265,13 @@ public class Huffman {
      * Reads {@code count} (at most four) bytes from {@code inStream} and
      * packs them into an int. Returns -1 if there is no more to read.
      */
-    private static int readN(int count, InputStream inStream) {
+    private static int readN(int count, InputStream inStream)
+            throws IOException {
         assert(count > 0);
         assert(count < 5);
 
-        int res = 0;
-        byte buffer[int];
+        int res       = 0;
+        byte[] buffer = new byte[count];
 
         // Read in the number of bytes
         int readCnt = inStream.read(buffer);
@@ -265,17 +292,30 @@ public class Huffman {
      * Writes {@code count} (at most four) bytes packed together in the {@code
      * int} {@code bytes} to {@code outStream}.
      */
-    private static void writeN(int count, int bytes, OutputStream outStream) {
+    private static void writeN(int count, int bytes, OutputStream outStream)
+            throws IOException {
         assert(count > 0);
         assert(count < 5);
 
-        byte buffer[count]
+        byte[] buffer = new byte[count];
 
         // Transform the int into an array of bytes
         for (int i = 0; i < count; ++i) {
-            buffer[count - i - 1] = bytes & (0xff << i);
+            buffer[count - i - 1] = (byte) (bytes & (0xff << i));
         }
 
         outStream.write(buffer);
+    }
+
+    /**
+     * Appends {@link BitSet} {@code part} to {@code BitSet} {@code whole}.
+     */
+    private static void appendToBitSet(BitSet whole, BitSet part) {
+        int wholeSize = whole.size();
+        int partSize  = part.size();
+
+        for (int i = 0; i < partSize; ++i) {
+            whole.set(wholeSize + i, part.get(i));
+        }
     }
 }
