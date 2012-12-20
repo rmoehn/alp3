@@ -247,11 +247,14 @@ public class Huffman {
 
         // Go through the SensibleBitSet
         int bitSetOffset = 0;
+        int encodedSize  = encoded.size();
         CODE:
         while (true) {
             // Try and read the code for one byte combination
-            for (int codelen = minCodeSize; codelen <= maxCodeSize; ++codelen)
-                    {
+            for (int codelen = minCodeSize;
+                    bitSetOffset + codelen <= encodedSize
+                    && codelen <= maxCodeSize; ++codelen) {
+
                 // Look up codelen bits
                 SensibleBitSet potentialCode
                     = encoded.get(bitSetOffset, bitSetOffset + codelen);
