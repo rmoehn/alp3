@@ -7,7 +7,7 @@ import java.util.Queue;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.BitSet;
+import java.util.Comparator;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -19,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.MutablePair;
 
 /**
@@ -26,6 +27,35 @@ import org.apache.commons.lang3.tuple.MutablePair;
  * method.
  */
 public class Huffman {
+    /**
+     * Arguments:
+     *
+     * 0 - encode|decode
+     * 1 - input file
+     * 2 - output file
+     * 3 - file for Huffman tree and other information
+     * 4 - number of bytes to encode with one code (only for encoding)
+     */
+    public static void main (String[] args) {
+        try {
+            switch (args[0]) {
+                case "encode":
+                    encode(args[1], args[2], args[3],
+                           Integer.parseInt(args[4]));
+                    break;
+                case "decode":
+                    decode(args[1], args[2], args[3]);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Wrong argument.");
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("There was some error.");
+        }
+    }
+
     /**
      * Encodes the data in {@code infile} using Huffman's method and stores
      * the encoded data in {@code outfile} and the data representing the
@@ -63,25 +93,31 @@ public class Huffman {
         // Create nodes for the Huffman tree from the frequencies
         Queue< MutablePair<Integer, List<Integer>> > huffmanNodes
             = new PriorityQueue< MutablePair<Integer, List<Integer>> >(
-                  frequencyOf.size()
+                  frequencyOf.size(),
+                  new Comparator< Pair<Integer, ?> >() {
+                      public int compare(Pair<Integer, ?> node0,
+                                         Pair<Integer, ?> node1) {
+                          return node0.getLeft() - node1.getLeft();
+                      }
+                  }
               );
         for (Map.Entry<Integer, Integer> entry : frequencyOf.entrySet()) {
             // Create list of byte combinations belonging to this node
             List<Integer> byteCombos = new LinkedList<Integer>();
-            byteCombos.add(entry.getValue());
+            byteCombos.add(entry.getKey());
 
             // Add the weight and the list of combos to the priority queue
             huffmanNodes.add(
                 new MutablePair<Integer, List<Integer>>(
-                    entry.getKey(),
+                    entry.getValue(),
                     byteCombos
                 )
             );
         }
 
         // As long as we haven't joined all small Huffman trees into one
-        Map<Integer, BitSet> codeFor
-            = new HashMap<Integer, BitSet>(maxLeavesCnt);
+        Map<Integer, SensibleBitSet> codeFor
+            = new HashMap<Integer, SensibleBitSet>(maxLeavesCnt);
         while (huffmanNodes.size() > 1) {
             // Remove the two smallest nodes from the queue
             MutablePair<Integer, List<Integer>> node0 = huffmanNodes.remove();
@@ -101,15 +137,15 @@ public class Huffman {
         }
 
         // Go through the table just created
-        Map<BitSet, Integer> byteCombFor
-            = new HashMap<BitSet, Integer>(maxLeavesCnt);
+        Map<SensibleBitSet, Integer> byteCombFor
+            = new HashMap<SensibleBitSet, Integer>(maxLeavesCnt);
         int minCodeSize = Integer.MAX_VALUE;
         int maxCodeSize = 0;
-        for (Map.Entry<Integer, BitSet> entry : codeFor.entrySet()) {
+        for (Map.Entry<Integer, SensibleBitSet> entry : codeFor.entrySet()) {
             // Reverse the code for the byte combination
-            BitSet code    = entry.getValue();
+            SensibleBitSet code    = entry.getValue();
             int codeSize   = code.size();
-            BitSet revCode = new BitSet(codeSize);
+            SensibleBitSet revCode = new SensibleBitSet(codeSize);
             for (int i = 0; i < codeSize; ++i) {
                 revCode.set(codeSize - i - 1, code.get(i));
             }
@@ -132,18 +168,17 @@ public class Huffman {
         }
 
         // Go back to the start of the input file
-        inStream.mark(0);
-        inStream.reset();
+        inStream = new BufferedInputStream(new FileInputStream(infile));
+            // Is there a better way to do this?
 
         // Encode the file and store the code in a giant bit vector
-        BitSet encoded = new BitSet();
+        SensibleBitSet encoded = new SensibleBitSet();
         while ((curBytes = readN(bytesAtOnce, inStream)) != -1) {
-            appendToBitSet(encoded, codeFor.get(curBytes));
+            appendToSensibleBitSet(encoded, codeFor.get(curBytes));
         }
         inStream.close();
 
-
-        // Write the BitSet as a byte array to the output file
+        // Write the SensibleBitSet as a byte array to the output file
         OutputStream outStream = new FileOutputStream(outfile);
         outStream.write(encoded.toByteArray());
         outStream.close();
@@ -192,8 +227,8 @@ public class Huffman {
         int maxCodeSize = treeInStream.readInt();
 
         @SuppressWarnings("unchecked")
-        Map<BitSet, Integer> byteCombFor
-            = (Map<BitSet, Integer>) treeInStream.readObject();
+        Map<SensibleBitSet, Integer> byteCombFor
+            = (Map<SensibleBitSet, Integer>) treeInStream.readObject();
             // This is safe, because we wrote a HashMap
 
         treeInStream.close();
@@ -203,14 +238,14 @@ public class Huffman {
         InputStream inStream = new FileInputStream(infile);
         byte[] encodedBytes  = new byte[(int) infile.length()];
         inStream.read(encodedBytes);
-        BitSet encoded       = BitSet.valueOf(encodedBytes);
+        SensibleBitSet encoded       = SensibleBitSet.valueOf(encodedBytes);
         inStream.close();
 
         // Open the output file
         OutputStream outStream
             = new BufferedOutputStream(new FileOutputStream(outfile));
 
-        // Go through the BitSet
+        // Go through the SensibleBitSet
         int bitSetOffset = 0;
         CODE:
         while (true) {
@@ -218,7 +253,7 @@ public class Huffman {
             for (int codelen = minCodeSize; codelen <= maxCodeSize; ++codelen)
                     {
                 // Look up codelen bits
-                BitSet potentialCode
+                SensibleBitSet potentialCode
                     = encoded.get(bitSetOffset, bitSetOffset + codelen);
                 Integer byteComb = byteCombFor.get(potentialCode);
 
@@ -247,16 +282,16 @@ public class Huffman {
      * byteCombs}. Those codes are contained in {@code codeFor}.
      */
     private static void extendCodes(List<Integer> byteCombs,
-            Map<Integer, BitSet> codeFor, boolean value) {
+            Map<Integer, SensibleBitSet> codeFor, boolean value) {
         // Go through the byte combinations
         for (Integer byteComb : byteCombs) {
             // Add a new empty code for a combination that hadn't been used
             if (! codeFor.containsKey(byteComb)) {
-                codeFor.put(byteComb, new BitSet());
+                codeFor.put(byteComb, new SensibleBitSet());
             }
 
             // Set the lowest bit to the desired value
-            BitSet curCode = codeFor.get(byteComb);
+            SensibleBitSet curCode = codeFor.get(byteComb);
             curCode.set(curCode.size(), value);
         }
     }
@@ -308,9 +343,9 @@ public class Huffman {
     }
 
     /**
-     * Appends {@link BitSet} {@code part} to {@code BitSet} {@code whole}.
+     * Appends {@link SensibleBitSet} {@code part} to {@code SensibleBitSet} {@code whole}.
      */
-    private static void appendToBitSet(BitSet whole, BitSet part) {
+    private static void appendToSensibleBitSet(SensibleBitSet whole, SensibleBitSet part) {
         int wholeSize = whole.size();
         int partSize  = part.size();
 
