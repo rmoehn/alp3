@@ -3,7 +3,7 @@ target/08-02-huffman-1.0-SNAPSHOT-jar-with-dependencies.jar: src/main/java/alp3/
 	mvn assembly:single
 
 encode: target/08-02-huffman-1.0-SNAPSHOT-jar-with-dependencies.jar 
-	java -jar target/08-02-huffman-1.0-SNAPSHOT-jar-with-dependencies.jar encode deutschland-wintermärchen.txt compressed tree 1 
+	java -jar target/08-02-huffman-1.0-SNAPSHOT-jar-with-dependencies.jar encode deutschland-wintermärchen.txt compressed tree 4 
 
 decode: target/08-02-huffman-1.0-SNAPSHOT-jar-with-dependencies.jar 
 	java -jar target/08-02-huffman-1.0-SNAPSHOT-jar-with-dependencies.jar decode compressed decompressed tree > bla
