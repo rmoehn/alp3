@@ -31,4 +31,11 @@ public class SimpleNode<T> implements Node<T> {
     public T getValue() {
         return value;
     }
+
+    /**
+     * Returns a {@link String} representing this node.
+     */
+    @Override public String toString() {
+        return getValue().toString();
+    }
 }

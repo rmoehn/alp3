@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 public class SimpleUndirGraphTest {
     private static final int int0 = 5;
     private static final int int1 = 65;
+    private static final int int2 = -465;
     private Node<Integer> node0;
     private Node<Integer> node1;
     private Node<Integer> node2;
@@ -18,8 +19,9 @@ public class SimpleUndirGraphTest {
     private Graph<Integer> graph3;
 
     @Before public void setUp() {
-        node0  = new SimpleNode<Integer>(int0);
-        node0  = new SimpleNode<Integer>(int1);
+        node0 = new SimpleNode<Integer>(int0);
+        node1 = new SimpleNode<Integer>(int1);
+        node2 = new SimpleNode<Integer>(int2);
 
         graph0 = new SimpleUndirGraph<Integer>();
 
@@ -72,7 +74,7 @@ public class SimpleUndirGraphTest {
 
     // Make sure nothing happens when a node is inserted a second time
     @Test public void testAddNode1() {
-        graph2.addNode(node0);
+        graph3.addNode(node0);
         Collection<Node<Integer>> nodes = graph3.getNodes();
         assertEquals(1, nodes.size());
         assertTrue(nodes.contains(node0));
@@ -150,6 +152,51 @@ public class SimpleUndirGraphTest {
     public void testAddEdge3() {
         graph3.addEdge(node0, node0);
     }
+
+    // Make sure nothing happens when an edge is inserted a second time
+    @Test public void testAddEdge4() {
+        graph2.addEdge(node0, node1);
+        Collection<Node<Integer>> adj0 = graph2.getAdjacentNodes(node0);
+        Collection<Node<Integer>> adj1 = graph2.getAdjacentNodes(node1);
+
+        assertEquals(1, adj0.size());
+        assertTrue(adj0.contains(node1));
+        assertEquals(1, adj1.size());
+        assertTrue(adj1.contains(node0));
+    }
+
+    // Cont.
+    @Test public void testAddEdge5() {
+        graph2.addEdge(node1, node0);
+        Collection<Node<Integer>> adj0 = graph2.getAdjacentNodes(node0);
+        Collection<Node<Integer>> adj1 = graph2.getAdjacentNodes(node1);
+
+        assertEquals(1, adj0.size());
+        assertTrue(adj0.contains(node1));
+        assertEquals(1, adj1.size());
+        assertTrue(adj1.contains(node0));
+    }
+
+    // Make sure nothing happens to the nodes when an edge is added
+    @Test public void testAddEdge6() {
+        graph1.addEdge(node0, node1);
+        Collection<Node<Integer>> nodes = graph1.getNodes();
+        assertEquals(2, nodes.size());
+        assertTrue(nodes.contains(node0));
+        assertTrue(nodes.contains(node1));
+    }
+
+    // Make sure a node can have more than one edge
+    @Test public void testAddEdge7() {
+        graph2.addNode(node0);
+        graph2.addNode(node2);
+        graph2.addEdge(node0, node2);
+        Collection<Node<Integer>> adj = graph2.getAdjacentNodes(node0);
+        assertEquals(2, adj.size());
+        assertTrue(adj.contains(node1));
+        assertTrue(adj.contains(node2));
+    }
+
 
     // Make sure edges are gone after deletion
     @Test public void testRemoveEdge0() {

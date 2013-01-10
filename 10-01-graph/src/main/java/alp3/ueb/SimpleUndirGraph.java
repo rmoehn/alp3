@@ -48,6 +48,9 @@ public class SimpleUndirGraph<T> implements Graph<T> {
      * Adds the specified {@link Node} to this graph.
      */
     public void addNode(Node<T> node) {
+        if (adjacentTo.containsKey(node)) {
+            return;
+        }
         adjacentTo.put(node, new HashSet<Node<T>>());
     }
 
