@@ -1,8 +1,10 @@
 package alp3.ueb;
 
 import java.util.Scanner;
+import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Stack;
 import java.io.InputStream;
 import java.io.FileInputStream;
 
@@ -64,4 +66,74 @@ public class GraphTools {
 
         return res;
     }
+
+    /**
+     * Performs DFS on the specified graph starting at the specified node. The
+     * return value is the DFS tree. Additionally a rather strange
+     * representation of the DFS tree is printed to standard output. If the
+     * graph consists of more than one compound, only the DFS tree of the
+     * compound to which the specified node belongs is returned and printed.
+     */
+    public static <T> Graph<T> performDFS(Graph<T> graph, Node<T> startNode) {
+        /*
+         * This implementation emulates recursion by handling the call stack
+         * manually. For printing, the depth of the found nodes is recorded in
+         * a dictionary. Additionally, when a node is present there, the
+         * algorithm knows that it has been seen already and does not add it
+         * to the stack once more.
+         */
+        Map<Node<T>, Integer> depthFor = new HashMap<Node<T>, Integer>();
+        Stack<Node<T>> toBeProcessed   = new Stack<Node<T>>();
+        Graph<T> dfsGraph              = new SimpleUndirGraph<T>();
+
+        // Put the start node on the stack, into the dictionary and the tree
+        depthFor.put(startNode, 0);
+        toBeProcessed.push(startNode);
+        dfsGraph.addNode(startNode);
+
+        // While we haven't examined all nodes for neighbours
+        while (!toBeProcessed.empty()) {
+            // Find all neighbours of one of the remaining nodes
+            Node<T> curNode              = toBeProcessed.pop();
+            int curDepth                 = depthFor.get(curNode);
+            Collection<Node<T>> adjNodes = graph.getAdjacentNodes(curNode);
+
+            // Print this node at its proper depth (distance from start node)
+            System.out.println(
+                multiplyString("\t", curDepth) + curNode.toString()
+            );
+
+            // Look at those neighbours, one at a time
+            for (Node<T> adjNode : adjNodes) {
+                // If it isn't the neighbour of a previously seen node
+                if (! depthFor.containsKey(adjNode)) {
+                    // Add it to the list of the nodes to be examined
+                    toBeProcessed.push(adjNode);
+                    depthFor.put(adjNode, curDepth + 1);
+
+                    // Add an edge to its predecessor in the DFS tree
+                    dfsGraph.addNode(adjNode);
+                    dfsGraph.addEdge(adjNode, curNode);
+                }
+            }
+        }
+
+        return dfsGraph;
+    }
+
+    /**
+     * Returns a {@code String} consisting of {@code n} repetitions of the
+     * specified string.
+     */
+    private static String multiplyString(String inString, int n) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < n; ++i) {
+            builder.append(inString);
+        }
+
+        return builder.toString();
+    }
+
+
 }

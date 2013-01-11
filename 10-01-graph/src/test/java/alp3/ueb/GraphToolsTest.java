@@ -1,5 +1,6 @@
 package alp3.ueb;
 
+import java.util.Iterator;
 import java.util.Collection;
 import java.util.HashSet;
 import java.io.FileNotFoundException;
@@ -83,6 +84,13 @@ public class GraphToolsTest {
                 assertTrue(adjacent.contains(adj));
             }
         }
+    }
+
+    // Make sure DFS is performed properly (ocular inspection)
+    @Test public void testDFS() {
+        Graph<Integer> dfsGraph
+            = GraphTools.performDFS(testgraph, readNodes.iterator().next());
+        assertEquals(nodes.length, dfsGraph.getNodes().size());
     }
 
     // Returns a Collection of Integers from a Collection of Nodes of
