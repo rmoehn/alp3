@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Stack;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -77,45 +78,53 @@ public class GraphTools {
     public static <T> Graph<T> performDFS(Graph<T> graph, Node<T> startNode) {
         /*
          * This implementation emulates recursion by handling the call stack
-         * manually. For printing, the depth of the found nodes is recorded in
-         * a dictionary. Additionally, when a node is present there, the
-         * algorithm knows that it has been seen already and does not add it
-         * to the stack once more.
+         * manually. An additional set allows testing whether a node is on the
+         * stack already and thus should not be added to it again.
          */
-        Map<Node<T>, Integer> depthFor = new HashMap<Node<T>, Integer>();
-        Stack<Node<T>> toBeProcessed   = new Stack<Node<T>>();
-        Graph<T> dfsGraph              = new SimpleUndirGraph<T>();
+        Collection<Node<T>> hasBeenSeen = new HashSet<Node<T>>();
+        Stack<Node<T>> toBeProcessed    = new Stack<Node<T>>();
+        Graph<T> dfsGraph               = new SimpleUndirGraph<T>();
 
         // Put the start node on the stack, into the dictionary and the tree
-        depthFor.put(startNode, 0);
+        hasBeenSeen.add(startNode);
         toBeProcessed.push(startNode);
         dfsGraph.addNode(startNode);
 
+        // And print it
+        System.out.println(startNode.toString());
+
         // While we haven't examined all nodes for neighbours
+        STACK:
         while (!toBeProcessed.empty()) {
             // Find all neighbours of one of the remaining nodes
-            Node<T> curNode              = toBeProcessed.pop();
-            int curDepth                 = depthFor.get(curNode);
+            Node<T> curNode              = toBeProcessed.peek();
             Collection<Node<T>> adjNodes = graph.getAdjacentNodes(curNode);
 
-            // Print this node at its proper depth (distance from start node)
-            System.out.println(
-                multiplyString("\t", curDepth) + curNode.toString()
-            );
-
-            // Look at those neighbours, one at a time
+            // Look through those neighbours...
             for (Node<T> adjNode : adjNodes) {
-                // If it isn't the neighbour of a previously seen node
-                if (! depthFor.containsKey(adjNode)) {
-                    // Add it to the list of the nodes to be examined
+                // ...until we find one that hasn't been seen yet
+                if (! hasBeenSeen.contains(adjNode)) {
+                    // Add it to the list of nodes to be examined
                     toBeProcessed.push(adjNode);
-                    depthFor.put(adjNode, curDepth + 1);
+                    hasBeenSeen.add(adjNode);
+
+                    // Print this node at its proper depth in the tree
+                    System.out.println(
+                        multiplyString("\t", toBeProcessed.size() - 1)
+                        + adjNode.toString()
+                    );
 
                     // Add an edge to its predecessor in the DFS tree
                     dfsGraph.addNode(adjNode);
                     dfsGraph.addEdge(adjNode, curNode);
+
+                    // Look for a neighbour of the newly added node (DF!)
+                    continue STACK;
                 }
             }
+
+            // The node on top of the stack had no more neighbours
+            toBeProcessed.pop();
         }
 
         return dfsGraph;
